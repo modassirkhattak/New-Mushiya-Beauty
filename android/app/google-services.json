@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "242280840990",
+    "project_id": "mushiyabeauty",
+    "storage_bucket": "mushiyabeauty.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242280840990:android:cc807804004014be4e930f",
+        "android_client_info": {
+          "package_name": "com.ahad.mushiya_beauty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "242280840990-b5qlb764seb9q01f3ugn2b9p69dsgp4v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ahad.mushiya_beauty",
+            "certificate_hash": "126c0b45b9abce316c6b2515ff2e59d3becfa728"
+          }
+        },
+        {
+          "client_id": "242280840990-io059k3l7mdte2io04f5978nn95dahn7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIl4OADNhAlx0GKN5hhuxxWUrAaknUrfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "242280840990-io059k3l7mdte2io04f5978nn95dahn7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "242280840990-ugkscb1k9pklegfru6rkl4b1943ihf60.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ahad.mushiyaBeauty"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242280840990:android:8ff8484bbdcb49ad4e930f",
+        "android_client_info": {
+          "package_name": "com.modassir.mushiya_beauty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "242280840990-io059k3l7mdte2io04f5978nn95dahn7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIl4OADNhAlx0GKN5hhuxxWUrAaknUrfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "242280840990-io059k3l7mdte2io04f5978nn95dahn7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "242280840990-ugkscb1k9pklegfru6rkl4b1943ihf60.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ahad.mushiyaBeauty"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

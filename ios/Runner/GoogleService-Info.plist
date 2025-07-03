@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>242280840990-54inrvfrv18n387bq7g6scs0phmold0p.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.242280840990-54inrvfrv18n387bq7g6scs0phmold0p</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>242280840990-b5qlb764seb9q01f3ugn2b9p69dsgp4v.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC4BvgVUhFMlbkjWRCM07vXHU4avpMNllQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>242280840990</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.ahad.mushiyabeauty.mushiyaBeauty</string>
+	<key>PROJECT_ID</key>
+	<string>mushiyabeauty</string>
+	<key>STORAGE_BUCKET</key>
+	<string>mushiyabeauty.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:242280840990:ios:1996ec6008da15a14e930f</string>
+</dict>
+</plist>

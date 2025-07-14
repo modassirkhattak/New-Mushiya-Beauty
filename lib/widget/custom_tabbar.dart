@@ -27,6 +27,7 @@ class CustomTabWidget extends StatelessWidget {
         // indicatorPadding: EdgeInsets.only(right: ),
         indicatorColor: whiteColor,
         labelPadding: const EdgeInsets.all(0),
+
         unselectedLabelStyle: GoogleFonts.roboto(
           color: whiteColor,
 

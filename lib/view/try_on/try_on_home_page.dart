@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mushiya_beauty/utills/app_colors.dart';
-import 'package:mushiya_beauty/view/try_on/main.dart';
+import 'package:mushiya_beauty/main.dart';
+
 import 'package:mushiya_beauty/widget/custom_appbar.dart';
 import 'package:mushiya_beauty/widget/custom_button.dart';
 import 'package:mushiya_beauty/widget/custom_text.dart';
@@ -91,6 +92,7 @@ class TryOnHomePage extends StatelessWidget {
               text: "Continue",
               onPressed: () {
                 // Get.to(() => HairColorTryOnApp());
+                // Get.to(() => HomePage());
                 Get.to(() => FaceDetectorView());
               },
               backgroundColor: whiteColor,

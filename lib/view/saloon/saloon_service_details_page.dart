@@ -17,75 +17,75 @@ import 'package:svg_flutter/svg.dart';
 import 'package:mushiya_beauty/controller/cart_controller.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import '../../testing.dart';
 
 class CalendarController extends GetxController {
-  var selectedDay = Rxn<DateTime>(); // Nullable DateTime
-  var selectedSlot = ''.obs;
-  var timeSlots = <String>[].obs;
-  var isServiceAvailable = true.obs; // Flag to check if service is bookable
+  var selectedDay = Rxn<DateTime>();
+  Rx<TimeSlot?> selectedSlot1 = Rx<TimeSlot?>(null);
+  var isServiceAvailable = true.obs;
 
-  void initialize(DateTime firstDay, DateTime lastDay) {
+  void initialize(DateTime firstDay, DateTime lastDay, List<String> availableDates) {
     final DateTime today = DateTime.now();
-    // Check if service is expired (end_date is before today)
     if (lastDay.isBefore(today)) {
       isServiceAvailable.value = false;
-      timeSlots.clear();
       selectedDay.value = null;
-      selectedSlot.value = '';
+      selectedSlot1.value = null;
       return;
     }
-
-    // Ensure firstDay is not before today
     firstDay = firstDay.isAfter(today) ? firstDay : today;
-    // Ensure lastDay is after or equal to firstDay
     if (firstDay.isAfter(lastDay)) {
-      lastDay = firstDay.add(Duration(days: 7)); // Fallback
+      lastDay = firstDay.add(Duration(days: 7));
     }
-    selectedDay.value = firstDay; // Initialize to firstDay
-    generateTimeSlots(firstDay);
+    // Set selectedDay to the first available date, if any
+    if (availableDates.isNotEmpty) {
+      selectedDay.value = DateFormat('dd-MM-yyyy').parse(availableDates.first);
+    } else {
+      selectedDay.value = firstDay;
+    }
     isServiceAvailable.value = true;
   }
 
-  void generateTimeSlots(DateTime selectedDate) {
-    timeSlots.clear();
-    final DateTime startTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      9,
-      0,
-    );
-    final DateTime endTime = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-      17,
-      0,
-    );
-
-    DateTime currentTime = startTime;
-    while (currentTime.isBefore(endTime) ||
-        currentTime.isAtSameMomentAs(endTime)) {
-      timeSlots.add(DateFormat('hh:mm a').format(currentTime));
-      currentTime = currentTime.add(Duration(minutes: 30));
-    }
-    selectedSlot.value = ''; // Reset slot selection
+  void selectSlot(TimeSlot slot) {
+    selectedSlot1.value = slot;
   }
 
   bool get isBookNowEnabled =>
       selectedDay.value != null &&
-      selectedSlot.value.isNotEmpty &&
-      isServiceAvailable.value;
+          selectedSlot1.value != null &&
+          isServiceAvailable.value;
 }
 
-class SaloonServiceDetailsPage extends StatelessWidget {
+class SaloonServiceDetailsPage extends StatefulWidget {
   SaloonServiceDetailsPage({super.key, required this.title, this.homeModel});
-  final CartController cartController = Get.put(CartController());
   final String title;
   final SalonService? homeModel;
 
+  @override
+  State<SaloonServiceDetailsPage> createState() => _SaloonServiceDetailsPageState();
+}
+
+class _SaloonServiceDetailsPageState extends State<SaloonServiceDetailsPage> {
+  final CartSaloonController cartController = Get.put(CartSaloonController());
   final controller = Get.put(ProductDetailsController());
   final calendarController = Get.put(CalendarController());
+  final CalendarAvailabilityController controllerAvailability = Get.put(CalendarAvailabilityController());
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch available dates and initialize calendar after data is loaded
+    controllerAvailability.fetchAvailableDates(widget.homeModel!.id).then((_) {
+      DateTime firstDay = widget.homeModel!.startDate.toLocal();
+      DateTime lastDay = widget.homeModel!.endDate.toLocal();
+      calendarController.initialize(firstDay, lastDay, controllerAvailability.availableDates);
+      // Fetch slots for the initial selected date, if available
+      if (controllerAvailability.availableDates.isNotEmpty) {
+        final initialDate = controllerAvailability.availableDates.first;
+        controllerAvailability.selectedDate!.value = initialDate;
+        controllerAvailability.fetchSlotsForDate(widget.homeModel!.id, initialDate);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class SaloonServiceDetailsPage extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: MyAppBarWidget(
-            title: title.toUpperCase(),
+            title: widget.title.toUpperCase(),
             titleImage: true,
             actions: true,
             actionsWidget: SvgPicture.asset('assets/icons_svg/share_icon.svg'),
@@ -135,56 +135,53 @@ class SaloonServiceDetailsPage extends StatelessWidget {
                     autoPlayInterval: const Duration(seconds: 3),
                     initialPage: 0,
                   ),
-                  items:
-                      List.generate(
-                        homeModel!.images.length,
+                  items: List.generate(
+                    widget.homeModel!.images.length,
                         (index) => index,
-                      ).map((i) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Image.network(
-                              homeModel!.images.isEmpty
-                                  ? 'https://cdn.shopify.com/s/files/1/1190/6424/files/Afro_Fusion.png?v=1733257065'
-                                  : homeModel!.images[i],
-                              height: 320,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Image.asset(
-                                    'assets/extra_images/girl_1.png',
-                                    height: 320,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                              loadingBuilder:
-                                  (context, child, loadingProgress) =>
-                                      loadingProgress == null
-                                          ? child
-                                          : Center(
-                                            child: CircularProgressIndicator(
-                                              color: whiteColor,
-                                            ),
-                                          ),
-                            );
-                          },
+                  ).map((i) {
+                    return Builder(
+                      builder: (BuildContext context) {
+                        return Image.network(
+                          widget.homeModel!.images.isEmpty
+                              ? 'https://cdn.shopify.com/s/files/1/1190/6424/files/Afro_Fusion.png?v=1733257065'
+                              : widget.homeModel!.images[i],
+                          height: 320,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Image.asset(
+                            'assets/extra_images/girl_1.png',
+                            height: 320,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                          loadingBuilder: (context, child, loadingProgress) =>
+                          loadingProgress == null
+                              ? child
+                              : Center(
+                            child: CircularProgressIndicator(
+                              color: whiteColor,
+                            ),
+                          ),
                         );
-                      }).toList(),
+                      },
+                    );
+                  }).toList(),
                 ),
               ),
-
+              SizedBox(height: 12),
               Row(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CustomText(
-                    text: '\$' + homeModel!.price.toString(),
+                    text: '\$${widget.homeModel!.price}',
                     fontSize: 18,
                     fontFamily: 'Archivo',
                     color: whiteColor,
                     fontWeight: FontWeight.w600,
                   ),
                   CustomText(
-                    text: '\$' + homeModel!.discount.toString(),
+                    text: '\$${widget.homeModel!.discount}',
                     fontSize: 14,
                     fontFamily: 'Archivo',
                     color: redColor,
@@ -195,12 +192,11 @@ class SaloonServiceDetailsPage extends StatelessWidget {
                   Row(
                     children: List.generate(
                       5,
-                      (index) =>
-                          Icon(Icons.star, color: Colors.yellow, size: 16),
+                          (index) => Icon(Icons.star, color: Colors.yellow, size: 16),
                     ),
                   ),
                   CustomText(
-                    text: homeModel!.rating.toString(),
+                    text: widget.homeModel!.rating.toString(),
                     fontSize: 14,
                     fontFamily: 'Archivo',
                     color: whiteColor,
@@ -208,7 +204,7 @@ class SaloonServiceDetailsPage extends StatelessWidget {
                   ),
                 ],
               ),
-
+              SizedBox(height: 12),
               CustomTabWidget(
                 children: [
                   Tab(text: 'Description'),
@@ -220,10 +216,10 @@ class SaloonServiceDetailsPage extends StatelessWidget {
                 child: TabBarView(
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    tabbarView(homeModel: homeModel!, title: "Description"),
+                    tabbarView(homeModel: widget.homeModel!, title: "Description"),
                     refundCancellationPolicy(
-                      homeModel: homeModel!,
-                      title: "Shipping policy",
+                      homeModel: widget.homeModel!,
+                      title: "Refund & cancellation policy",
                     ),
                   ],
                 ),
@@ -234,24 +230,10 @@ class SaloonServiceDetailsPage extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget tabbarView({required SalonService homeModel, required String title}) {
-  final CartController cartController = Get.put(CartController());
-  final CalendarController controller = Get.put(CalendarController());
-
-  // Validate and adjust dates
-  DateTime firstDay = homeModel.startDate.toLocal();
-  DateTime lastDay = homeModel.endDate.toLocal();
-  final DateTime today = DateTime.now();
-
-  // Initialize controller
-  controller.initialize(firstDay, lastDay);
-
-  return SingleChildScrollView(
-    child: Column(
+  Widget tabbarView({required SalonService homeModel, required String title}) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 12,
       children: [
         Html(
           data: homeModel.description,
@@ -284,258 +266,248 @@ Widget tabbarView({required SalonService homeModel, required String title}) {
             ),
           },
         ),
-        Obx(
-          () =>
-              controller.isServiceAvailable.value
-                  ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 12,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(
-                          top: 20,
-                          left: 12,
-                          right: 12,
-                          bottom: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          color: whiteColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TableCalendar(
-                          rowHeight: 40,
-                          firstDay: firstDay.isAfter(today) ? firstDay : today,
-                          lastDay: lastDay,
-                          focusedDay:
-                              controller.selectedDay.value ??
-                              (firstDay.isAfter(today) ? firstDay : today),
-                          calendarFormat: CalendarFormat.month,
-                          startingDayOfWeek: StartingDayOfWeek.sunday,
-                          selectedDayPredicate:
-                              (day) =>
-                                  isSameDay(controller.selectedDay.value, day),
-                          onDaySelected: (selectedDay, focusedDay) {
-                            if (!selectedDay.isBefore(firstDay) &&
-                                !selectedDay.isAfter(lastDay)) {
-                              controller.selectedDay.value = selectedDay;
-                              controller.generateTimeSlots(selectedDay);
-                            }
-                          },
-                          enabledDayPredicate: (day) {
-                            return !day.isBefore(today) &&
-                                day.isAfter(
-                                  firstDay.subtract(const Duration(days: 1)),
-                                ) &&
-                                day.isBefore(
-                                  lastDay.add(const Duration(days: 1)),
-                                );
-                          },
-                          calendarStyle: CalendarStyle(
-                            todayDecoration: BoxDecoration(
-                              color: primaryBlackColor,
-                              shape: BoxShape.circle,
-                            ),
-                            selectedDecoration: BoxDecoration(
-                              color: primaryBlackColor,
-                              shape: BoxShape.circle,
-                            ),
-                            selectedTextStyle: TextStyle(
-                              fontFamily: "Roboto",
-                              color: whiteColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                            defaultTextStyle: TextStyle(
-                              fontFamily: "Roboto",
-                              color: primaryBlackColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                            disabledTextStyle: TextStyle(
-                              fontFamily: "Roboto",
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
-                          headerStyle: HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                            titleTextStyle: TextStyle(
-                              fontFamily: "Roboto",
-                              color: primaryBlackColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 18,
-                            ),
-                            leftChevronIcon: Icon(
-                              Icons.chevron_left,
-                              color: Colors.black,
-                            ),
-                            rightChevronIcon: Icon(
-                              Icons.chevron_right,
-                              color: Colors.black,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          daysOfWeekStyle: DaysOfWeekStyle(
-                            weekendStyle: TextStyle(
-                              fontFamily: "Roboto",
-                              color: primaryBlackColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                            weekdayStyle: TextStyle(
-                              fontFamily: "Roboto",
-                              color: primaryBlackColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                            dowTextFormatter:
-                                (date, locale) => DateFormat(
-                                  'EEE',
-                                  locale,
-                                ).format(date).substring(0, 1),
-                          ),
-                        ),
-                      ),
-                      CustomText(
-                        text: "SLOT".toUpperCase(),
-                        fontSize: 16,
-                        fontFamily: 'Roboto',
-                        color: whiteColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: 200),
-                        child: Obx(() {
-                          final selected = controller.selectedSlot.value;
-                          return controller.timeSlots.isEmpty
-                              ? CustomText(
-                                text:
-                                    "Please select a date to view available slots",
-                                fontSize: 14,
-                                fontFamily: 'Roboto',
-                                color: whiteColor,
-                                fontWeight: FontWeight.w400,
-                              )
-                              : GridView.builder(
-                                itemCount: controller.timeSlots.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 12,
-                                      crossAxisSpacing: 12,
-                                      childAspectRatio: 4.8,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  final slot = controller.timeSlots[index];
-                                  final isSelected = selected == slot;
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      controller.selectedSlot.value = slot;
-                                    },
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            isSelected
-                                                ? Colors.white
-                                                : Colors.black,
-                                        border: Border.all(
-                                          color:
-                                              isSelected
-                                                  ? Colors.white
-                                                  : Colors.white70,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: CustomText(
-                                        text: slot,
-                                        color:
-                                            isSelected
-                                                ? Colors.black
-                                                : Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: "Roboto",
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                        }),
-                      ),
-                      Obx(
-                        () => CustomButton(
-                          text: "Book now".toUpperCase(),
-                          onPressed:
-                              controller.isBookNowEnabled
-                                  ? () {
-                                    cartController.addToCart(
-                                      CartItem(
-                                        id: homeModel.id,
-                                        name: homeModel.sName,
-                                        image: homeModel.thumbnailImage,
-                                        bookedDate:
-                                            controller.selectedDay.value!
-                                                .toString(),
-                                        timeSlot: controller.selectedSlot.value,
-                                        price: homeModel.price,
-                                        quantity: 1,
-                                      ),
-                                    );
-                                    Get.snackbar(
-                                      'Success',
-                                      'Item added to cart!',
-                                      snackPosition: SnackPosition.BOTTOM,
-                                      mainButton: TextButton(
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStatePropertyAll(
-                                                primaryBlackColor,
-                                              ),
-                                          shape: MaterialStatePropertyAll(
-                                            RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                        ),
-                                        onPressed: () {
-                                          Get.to(() => SaloonCartPage());
-                                        },
-                                        child: Text(
-                                          "View Cart",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  : () {},
-                          backgroundColor:
-                              controller.isBookNowEnabled
-                                  ? whiteColor
-                                  : Colors.grey,
-                          textColor: primaryBlackColor,
-                          fontSize: 14,
-                          minWidth: double.infinity,
-                          fontWeight: FontWeight.w600,
-                          height: 40,
-                        ),
-                      ),
-                    ],
-                  )
-                  : CustomText(
-                    text: "This service is no longer available for booking.",
-                    fontSize: 16,
-                    fontFamily: 'Roboto',
-                    color: redColor,
-                    fontWeight: FontWeight.w600,
-                    textAlign: TextAlign.center,
+        SizedBox(height: 12),
+        Obx(() => calendarController.isServiceAvailable.value
+            ? Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: whiteColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Obx(() {
+                return TableCalendar(
+                  rowHeight: 40,
+                  firstDay: DateTime.now(),
+                  lastDay: DateTime.now().add(const Duration(days: 365)),
+                  focusedDay: calendarController.selectedDay.value ?? DateTime.now(),
+                  calendarFormat: CalendarFormat.month,
+                  startingDayOfWeek: StartingDayOfWeek.sunday,
+                  selectedDayPredicate: (day) {
+                    final selected = calendarController.selectedDay.value;
+                    return isSameDay(selected, day);
+                  },
+                  onDaySelected: (selectedDay, focusedDay) {
+                    final formatted = DateFormat('dd-MM-yyyy').format(selectedDay);
+                    if (controllerAvailability.availableDates.contains(formatted)) {
+                      calendarController.selectedDay.value = selectedDay;
+                      controllerAvailability.selectedDate!.value = formatted;
+                      controllerAvailability.fetchSlotsForDate(homeModel.id, formatted);
+                    } else {
+                      calendarController.selectedDay.value = null;
+                      controllerAvailability.selectedDate!.value = '';
+                      controllerAvailability.slotsForSelectedDate.clear();
+                    }
+                  },
+                  enabledDayPredicate: (day) {
+                    final formatted = DateFormat('dd-MM-yyyy').format(day);
+                    return controllerAvailability.availableDates.contains(formatted);
+                  },
+                  calendarStyle: CalendarStyle(
+                    todayDecoration: BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                    ),
+                    selectedDecoration: BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                    ),
+                    selectedTextStyle: const TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                    defaultTextStyle: const TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                    disabledTextStyle: const TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
                   ),
-        ),
+                  headerStyle: const HeaderStyle(
+                    formatButtonVisible: false,
+                    titleCentered: true,
+                    titleTextStyle: TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
+                    ),
+                    leftChevronIcon: Icon(
+                      Icons.chevron_left,
+                      color: Colors.black,
+                    ),
+                    rightChevronIcon: Icon(
+                      Icons.chevron_right,
+                      color: Colors.black,
+                    ),
+                  ),
+                  daysOfWeekStyle: DaysOfWeekStyle(
+                    weekendStyle: const TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                    weekdayStyle: const TextStyle(
+                      fontFamily: "Roboto",
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
+                    ),
+                    dowTextFormatter: (date, locale) => DateFormat('EEE', locale).format(date)[0],
+                  ),
+                );
+              }),
+            ),
+            SizedBox(height: 12),
+            CustomText(
+              text: "SLOTS".toUpperCase(),
+              fontSize: 16,
+              fontFamily: 'Roboto',
+              color: whiteColor,
+              fontWeight: FontWeight.w600,
+            ),
+            SizedBox(height: 12),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: 270),
+              child: Obx(() {
+                if (controllerAvailability.selectedDate == null || controllerAvailability.selectedDate!.value.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Please select a date to view available slots',
+                      style: TextStyle(color: whiteColor),
+                    ),
+                  );
+                }
+
+                if (controllerAvailability.slotsForSelectedDate.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'No available slots for ${controllerAvailability.selectedDate}',
+                      style: TextStyle(color: whiteColor),
+                    ),
+                  );
+                }
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  // physics: NeverScrollableScrollPhysics(),
+                  itemCount: controllerAvailability.slotsForSelectedDate.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 4.8,
+                  ),
+                  itemBuilder: (context, index) {
+                    final slot = controllerAvailability.slotsForSelectedDate[index];
+                    final isSelected = calendarController.selectedSlot1.value == slot;
+
+                    return GestureDetector(
+                      onTap: slot.isAvailable
+                          ? () {
+                        calendarController.selectSlot(slot);
+                        print("Selected: ${slot.startTime} - ${slot.endTime}");
+                        setState(() {
+
+                        });
+                      }
+                          : null,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: slot.isAvailable ==false
+                              ?greyColor:isSelected ? Colors.white : Colors.black,
+                          border: Border.all(
+                            color: slot.isAvailable ==false
+                                ?greyColor:isSelected ? Colors.black : Colors.white70,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "${slot.startTime} - ${slot.endTime}",
+                          style: TextStyle(
+                            color: isSelected ? Colors.black : Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+            SizedBox(height: 12),
+            Obx(
+                  () => CustomButton(
+                text: "Book now".toUpperCase(),
+                onPressed: calendarController.isBookNowEnabled
+                    ? () {
+                  cartController.addToCart(
+                    CartItem(
+                      id: homeModel.id,
+                      name: homeModel.sName,
+                      image: homeModel.thumbnailImage,
+                      bookedDate: calendarController.selectedDay.value!.toString(),
+                      timeSlot: calendarController.selectedSlot1.value.toString(),
+                      price: homeModel.price,
+                      quantity: 1,
+                    ),
+                  );
+                  Get.snackbar(
+                    'Success',
+                    'Item added to cart!',
+                    snackPosition: SnackPosition.BOTTOM,
+                    mainButton: TextButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(primaryBlackColor),
+                        shape: MaterialStatePropertyAll(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        Get.to(() => SaloonCartPage());
+                      },
+                      child: Text(
+                        "View Cart",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                }
+                    : () {},
+                backgroundColor: calendarController.isBookNowEnabled ? whiteColor : Colors.grey,
+                textColor: primaryBlackColor,
+                fontSize: 14,
+                minWidth: double.infinity,
+                fontWeight: FontWeight.w600,
+                height: 40,
+              ),
+            ),
+          ],
+        )
+            : CustomText(
+          text: "This service is no longer available for booking.",
+          fontSize: 16,
+          fontFamily: 'Roboto',
+          color: redColor,
+          fontWeight: FontWeight.w600,
+          textAlign: TextAlign.center,
+        )),
         Center(
           child: GestureDetector(
             onTap: () {
@@ -553,34 +525,34 @@ Widget tabbarView({required SalonService homeModel, required String title}) {
         ),
         SizedBox(height: 20),
       ],
-    ),
-  );
-}
+    );
+  }
 
-Widget refundCancellationPolicy({
-  required SalonService homeModel,
-  required String title,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    spacing: 12,
-    children: [
-      CustomText(
-        text: title,
-        fontSize: 18,
-        fontFamily: 'Archivo',
-        color: whiteColor,
-        fontWeight: FontWeight.w600,
-      ),
-      CustomText(
-        text:
-            'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla. ',
-        fontSize: 12,
-        fontFamily: 'Roboto',
-        color: whiteColor,
-        maxLines: 90,
-        fontWeight: FontWeight.w400,
-      ),
-    ],
-  );
+  Widget refundCancellationPolicy({
+    required SalonService homeModel,
+    required String title,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomText(
+          text: title,
+          fontSize: 18,
+          fontFamily: 'Archivo',
+          color: whiteColor,
+          fontWeight: FontWeight.w600,
+        ),
+        SizedBox(height: 12),
+        CustomText(
+          text:
+          'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.',
+          fontSize: 12,
+          fontFamily: 'Roboto',
+          color: whiteColor,
+          maxLines: 90,
+          fontWeight: FontWeight.w400,
+        ),
+      ],
+    );
+  }
 }

@@ -30,6 +30,7 @@ import 'package:shopify_flutter/models/src/cart/inputs/attribute_input/attribute
 import 'package:shopify_flutter/shopify_flutter.dart';
 
 import '../../new_app/screens/cart_tab.dart';
+import '../../utills/api_controller.dart';
 
 class BestSellerDetails extends StatefulWidget {
   BestSellerDetails({super.key, required this.title, required this.id});
@@ -297,47 +298,47 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                       initialPage: 0,
                     ),
                     items:
-                        List.generate(
-                          product.images.length,
+                    List.generate(
+                      product.images.length,
                           (index) => index,
-                        ).map((i) {
-                          return Builder(
-                            builder: (BuildContext context) {
-                              return Image.network(
-                                product.images.isEmpty
-                                    ? 'https://cdn.shopify.com/s/files/1/1190/6424/files/Afro_Fusion.png?v=1733257065'
-                                    : product.images[i].src,
-                                height: 320,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder:
-                                    (context, error, stackTrace) => Image.asset(
-                                      'assets/extra_images/girl_1.png',
-                                      height: 320,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                loadingBuilder:
-                                    (context, child, loadingProgress) =>
-                                        loadingProgress == null
-                                            ? child
-                                            : Center(
-                                              child: CircularProgressIndicator(
-                                                color: whiteColor,
-                                              ),
-                                            ),
-                              );
-                            },
+                    ).map((i) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return Image.network(
+                            product.images.isEmpty
+                                ? 'https://cdn.shopify.com/s/files/1/1190/6424/files/Afro_Fusion.png?v=1733257065'
+                                : product.images[i].src,
+                            height: 320,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Image.asset(
+                              'assets/extra_images/girl_1.png',
+                              height: 320,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                            loadingBuilder:
+                                (context, child, loadingProgress) =>
+                            loadingProgress == null
+                                ? child
+                                : Center(
+                              child: CircularProgressIndicator(
+                                color: whiteColor,
+                              ),
+                            ),
                           );
-                        }).toList(),
+                        },
+                      );
+                    }).toList(),
                   ),
                 ),
                 Row(
                   children: [
                     Obx(
-                      () => CustomText(
+                          () => CustomText(
                         text:
-                            '\$${homeController.selectedVariant.value == null ? product.variants.first.price : homeController.selectedVariant.value!.price}',
+                        '\$${homeController.selectedVariant.value == null ? product.variants.first.price : homeController.selectedVariant.value!.price}',
                         fontSize: 18,
                         fontFamily: 'Archivo',
                         color: whiteColor,
@@ -348,15 +349,15 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                     // if (homeController.selectedVariant.value == null)
                     // if (product.variants.first.compareAtPrice != null)
                     Obx(
-                      () => CustomText(
+                          () => CustomText(
                         text:
-                            '${homeController.selectedVariant.value == null
-                                ? product.variants.first.compareAtPrice == product.variants.first.price
-                                    ? ''
-                                    : '${product.variants.first.compareAtPrice == '' ? '' : '\$${product.variants.first.compareAtPrice}'}'
-                                : homeController.selectedVariant.value!.compareAtPrice == homeController.selectedVariant.value!.price
-                                ? ''
-                                : '${homeController.selectedVariant.value!.compareAtPrice == '' ? '' : '\$${homeController.selectedVariant.value!.compareAtPrice}'}'}',
+                        '${homeController.selectedVariant.value == null
+                            ? product.variants.first.compareAtPrice == product.variants.first.price
+                            ? ''
+                            : '${product.variants.first.compareAtPrice == '' ? '' : '\$${product.variants.first.compareAtPrice}'}'
+                            : homeController.selectedVariant.value!.compareAtPrice == homeController.selectedVariant.value!.price
+                            ? ''
+                            : '${homeController.selectedVariant.value!.compareAtPrice == '' ? '' : '\$${homeController.selectedVariant.value!.compareAtPrice}'}'}',
                         fontSize: 14,
                         fontFamily: 'Archivo',
                         color: redColor,
@@ -369,7 +370,7 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                     Row(
                       children: List.generate(5, (index) {
                         double rating =
-                            product.variants.first.weight!; // for example: 3.5
+                        product.variants.first.weight!; // for example: 3.5
 
                         if (index < rating.floor()) {
                           // Full star
@@ -407,7 +408,7 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                 const SizedBox(height: 16),
                 // Quantity selector
                 Obx(
-                  () => Container(
+                      () => Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
@@ -419,7 +420,7 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                         GestureDetector(
                           onTap:
                               () =>
-                                  Get.put(HomeController()).decrementQuantity(),
+                              Get.put(HomeController()).decrementQuantity(),
                           child: Icon(
                             Icons.remove,
                             color: whiteColor,
@@ -438,7 +439,7 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                         GestureDetector(
                           onTap:
                               () =>
-                                  Get.put(HomeController()).incrementQuantity(),
+                              Get.put(HomeController()).incrementQuantity(),
                           child: Icon(Icons.add, color: whiteColor, size: 16),
                         ),
                       ],
@@ -454,7 +455,7 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                   onChanged: (p0) {
                     controller.selecctSize.value = p0.toString();
                     final selectedVariant = product.variants.firstWhere(
-                      (variant) => variant.title == p0.toString(),
+                          (variant) => variant.title == p0.toString(),
                       orElse: () => product.variants.first,
                     );
                     homeController.selectedVariant.value =
@@ -476,9 +477,9 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                   final variant = homeController.selectedVariant.value;
                   final isVariantSelected = variant != null;
                   final isOutOfStock =
-                      isVariantSelected
-                          ? variant.inventoryQuantity == 0
-                          : product.variants.first.inventoryQuantity == 0;
+                  isVariantSelected
+                      ? variant.inventoryQuantity == 0
+                      : product.variants.first.inventoryQuantity == 0;
 
                   if (!isVariantSelected) {
                     // ✅ Variant not selected — show Add to Cart + Buy Now
@@ -516,8 +517,8 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                     // ✅ Variant selected but out of stock — show Notify button
                     return CustomButton(
                       text:
-                          "Sold Out - Notify Me When It’s Available"
-                              .toUpperCase(),
+                      "Sold Out - Notify Me When It’s Available"
+                          .toUpperCase(),
                       onPressed: () {
                         // Add notify logic here
                       },
@@ -607,13 +608,14 @@ class _BestSellerDetailsState extends State<BestSellerDetails> {
                       ),
                       TheShoppingPolicyPage(
                         isPage: false,
+                        handle: SHIPPING_POLICY,
                         // homeModel: homeModel,
                         // title: "Shipping policy",
                         // description: "adsadas",
                       ),
                       PartnerPolicyPage(
                         isPage: false,
-                        // homeModel: homeModel,
+                        handle: PARTNER_POLICY,
                         // title: "Return policy",
                         // description: "jksdjksa",
                       ),

@@ -51,7 +51,7 @@ class SignUpPage extends StatelessWidget {
                     children: [
                       Center(
                         child: CustomText(
-                          text: "Signup".toUpperCase(),
+                          text: "Signup".tr.toUpperCase(),
                           fontSize: 22,
                           fontFamily: 'Archivo',
                           color: primaryBlackColor,
@@ -61,40 +61,40 @@ class SignUpPage extends StatelessWidget {
                       CustomTextField(
                         keyboardType: TextInputType.name,
                         height: 48,
-                        hintText: 'First Name',
+                        hintText: 'First Name'.tr,
                         textEditingController: controller.firstNameController,
                         fillColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         isBorder: true,
                         onValidate:
                             (val) =>
-                                val!.isEmpty ? "First Name required" : null,
+                                val!.isEmpty ? "First Name required".tr : null,
                       ),
 
                       CustomTextField(
                         keyboardType: TextInputType.name,
                         height: 48,
-                        hintText: 'Last Name',
+                        hintText: 'Last Name'.tr,
                         textEditingController: controller.lastNameController,
                         fillColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         isBorder: true,
                         onValidate:
-                            (val) => val!.isEmpty ? "Last Name required" : null,
+                            (val) => val!.isEmpty ? "Last Name required".tr : null,
                       ),
                       CustomTextField(
                         keyboardType: TextInputType.emailAddress,
                         height: 48,
-                        hintText: 'Email',
+                        hintText: 'Email'.tr,
                         textEditingController: controller.emailController,
                         fillColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         isBorder: true,
                         onValidate: (val) {
                           if (val == null || val.isEmpty)
-                            return 'Email required';
+                            return 'Email required'.tr;
                           if (!GetUtils.isEmail(val))
-                            return 'Enter valid email';
+                            return 'Enter valid email'.tr;
                           return null;
                         },
                         suffixIcon: Obx(
@@ -133,7 +133,7 @@ class SignUpPage extends StatelessWidget {
                         () => CustomTextField(
                           keyboardType: TextInputType.visiblePassword,
                           height: 48,
-                          hintText: 'Password',
+                          hintText: 'Password'.tr,
                           textEditingController: controller.passwordController,
                           fillColor: Colors.transparent,
                           shadowColor: Colors.transparent,
@@ -153,8 +153,8 @@ class SignUpPage extends StatelessWidget {
                           ),
                           onValidate: (val) {
                             if (val == null || val.isEmpty)
-                              return 'Password required';
-                            if (val.length < 6) return 'Minimum 6 characters';
+                              return 'Password required'.tr;
+                            if (val.length < 6) return 'Minimum 6 characters'.tr;
                             return null;
                           },
                         ),
@@ -163,7 +163,7 @@ class SignUpPage extends StatelessWidget {
                         () => CustomTextField(
                           keyboardType: TextInputType.visiblePassword,
                           height: 48,
-                          hintText: 'Confirm Password',
+                          hintText: 'Confirm Password'.tr,
                           textEditingController:
                               controller.confirmPasswordController,
                           fillColor: Colors.transparent,
@@ -186,9 +186,9 @@ class SignUpPage extends StatelessWidget {
                           ),
                           onValidate: (val) {
                             if (val == null || val.isEmpty)
-                              return 'Confirm password required';
+                              return 'Confirm password required'.tr;
                             if (val != controller.passwordController.text)
-                              return 'Passwords do not match';
+                              return 'Passwords do not match'.tr;
                             return null;
                           },
                         ),
@@ -207,12 +207,12 @@ class SignUpPage extends StatelessWidget {
                         ),
                       ),
                       CustomButton(
-                        text: "SIGNUP",
+                        text: "SIGNUP".tr,
                         onPressed: () async {
                           if (!controller.isAgree.value) {
                             Get.snackbar(
-                              "Error",
-                              "You must agree to the Terms & Conditions",
+                              "Error".tr,
+                              "You must agree to the Terms & Conditions".tr,
                               backgroundColor: Colors.red.shade100,
                             );
                             return;

@@ -9,6 +9,7 @@ import 'package:mushiya_beauty/controller/home_controller.dart'
     show HomeController;
 import 'package:mushiya_beauty/controller/shop_controller.dart';
 import 'package:mushiya_beauty/model/home_model.dart' show HomeModel;
+import 'package:mushiya_beauty/new_app/screens/home_tab.dart';
 import 'package:mushiya_beauty/utills/app_colors.dart';
 import 'package:mushiya_beauty/view/auth/stated_page.dart';
 import 'package:mushiya_beauty/view/cart/cart_page.dart';
@@ -21,11 +22,14 @@ import 'package:mushiya_beauty/widget/custom_tabbar.dart';
 import 'package:mushiya_beauty/widget/custom_text.dart';
 import 'package:mushiya_beauty/widget/custom_textfield.dart';
 import 'package:mushiya_beauty/widget/drawer_widget.dart';
+import 'package:shopify_flutter/shopify_flutter.dart';
 import 'package:svg_flutter/svg_flutter.dart';
 
 import '../../controller/home_specific_collect_controller.dart';
 import '../../controller/product_details_controller.dart';
 
+import '../../new_app/screens/product_detail_screen.dart';
+import '../product_details/best_seller_details.dart';
 import '../product_details/custom_collect_details.dart';
 
 class ShopPage extends StatelessWidget {
@@ -123,23 +127,190 @@ class ShopPage extends StatelessWidget {
       ),
     );
   }
+  Widget buildProductThumbnail(Product product, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // final productID= product.id.split();
+        print("......${product.id}");
+        final controller = Get.put(ProductDetailScreen(title: product.title,product: product));
+        controller;
+        Get.to(ProductDetailScreen(product: product,title: product.title.toString()));
+        // String gid =
+        //     product
+        //         .id;
+        // String numericId = gid.split('/').last;
+        // Get.put(
+        //   ProductDetailsController(),
+        // ).fetchProduct(int.parse(numericId));
+        // Get.put(HomeController())
+        //     .selectedVariant
+        //     .value = null;
+        // Get.to(
+        //   BestSellerDetails(
+        //     id:
+        //     product
+        //         .id,
+        //     title:
+        //     product
+        //         .title,
+        //   ),
+        // );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  10,
+                ),
+                child: Image(
+                  image: NetworkImage(
+                    product
+                        .image
+                        .toString(),
+                  ),
+                ),
+              ),
+              if (product.availableForSale==false)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: greyColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: CustomText(
+                      text:
+                      product.availableForSale == true
+                          ? "Sold Out"
+                          : "Sold Out",
+                      leftPadding: 8,
+                      topPadding: 4,
+                      rightPadding: 8,
+                      bottomPadding: 4,
+                      fontSize: 12,
+                      maxLines: 1,
+                      fontFamily: "Roboto",
+                      color: whiteColor,
+                    ),
+                  ),
+                ),
+              if (product.isAvailableForSale==false)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: greyColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: CustomText(
+                      text:
+                      product.isAvailableForSale==false?"Sold Out":"",
+                      leftPadding: 8,
+                      topPadding: 4,
+                      rightPadding: 8,
+                      bottomPadding: 4,
+                      fontSize: 12,
+                      maxLines: 1,
+                      fontFamily: "Roboto",
+                      color: whiteColor,
+                    ),
+                  ),
+                ),
+              if (product.hasComparablePrice==true)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: primaryBlackColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: CustomText(
+                      text:
+                      product.hasComparablePrice == true
+                          ?"Sale"
+                          : "",
+                      leftPadding: 8,
+                      topPadding: 4,
+                      rightPadding: 8,
+                      bottomPadding: 4,
+                      fontSize: 12,
+                      maxLines: 1,
+                      fontFamily: "Roboto",
+                      color: whiteColor,
+                    ),
+                  ),
+                ),
+              Positioned(
+                bottom: 10,
+                right: 10,
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: whiteColor.withOpacity(
+                      0.5,
+                    ),
+                    borderRadius:
+                    BorderRadius.circular(8),
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/icons_svg/cart_add_icon.svg',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          CustomText(
+            text:
+            product
+                .title
+                .toString(),
+            fontSize: 14,
+            maxLines: 2,
+            fontFamily: "Roboto",
+            color: whiteColor,
+            fontWeight: FontWeight.w500,
+          ),
+          CustomText(
+            text:
+            "\$${product.price.toString()}",
+            fontSize: 12,
+            maxLines: 1,
+            fontFamily: "Roboto",
+
+            color: whiteColor,
+            fontWeight: FontWeight.w400,
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 Widget tabbarView({required String title}) {
   final controller = Get.put(HomeController());
-  Get.put(HomeSpecificCollectController()).fetchCollectionProducts(
-    controller.collections.first.id.toString(),
-    isLoadMore: false,
+  final controllerShopify = Get.put(ShopifyProductController());
+  ;Get.put(
+    ShopifyProductController(),
+  ).fetchAllProductsFromCollection(
+    'gid://shopify/Collection/'+controller.collections.first.id.toString(),
+    // isLoadMore: false,
   );
+  // Get.put(HomeSpecificCollectController()).fetchCollectionProducts(
+  //   controller.collections.first.id.toString(),
+  //   isLoadMore: false,
+  // );
 
   final HomeModel homeModel;
-  final listview = [
-    "Hair care",
-    "Skin care",
-    "Make-up",
-    "Accessories",
-    "Salon",
-  ];
+
   return Column(
     children: [
       CustomTextField(
@@ -192,13 +363,26 @@ Widget tabbarView({required String title}) {
                           padding: EdgeInsets.only(right: 12),
                           child: GestureDetector(
                             onTap: () {
-                              print(controller.collections[index].id);
-                              Get.put(
+                             /* Get.put(
                                 HomeSpecificCollectController(),
                               ).fetchCollectionProducts(
-                                controller.collections[index].id.toString(),
+                                "gid://shopify/Collection/"+controller.collections[index].id.toString(),
                                 isLoadMore: false,
+
+                              );*/Get.put(
+                                ShopifyProductController(),
+                              ).fetchAllProductsFromCollection(
+                                'gid://shopify/Collection/'+controller.collections[index].id.toString(),
+                                // isLoadMore: false,
                               );
+
+                              // print(controller.collections[index].id);
+                              // Get.put(
+                              //   HomeSpecificCollectController(),
+                              // ).fetchCollectionProducts(
+                              //   controller.collections[index].id.toString(),
+                              //   isLoadMore: false,
+                              // );
                             },
                             child: CustomText(
                               text: controller.collections[index].title,
@@ -218,6 +402,32 @@ Widget tabbarView({required String title}) {
 
       SizedBox(height: 16),
       Expanded(
+        child: Obx(() {
+          if (Get.put(ShopifyProductController()).isLoading.value) {
+            return const Center(child: CircularProgressIndicator(color: whiteColor,));
+          }
+
+          if (Get.put(ShopifyProductController()).filteredProducts.isEmpty) {
+            return const Center(child: Text("No products found."));
+          }
+
+          return GridView.builder(
+            // padding: const EdgeInsets.all(8),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.7,
+            ),
+            itemCount: controllerShopify.filteredProducts.length,
+            itemBuilder: (_, index) {
+              final product = controllerShopify.filteredProducts[index];
+              return buildProductThumbnail(product);
+            },
+          );
+        }),
+      ),
+      /* Expanded(
         child: Obx(() {
           if (Get.put(
             HomeSpecificCollectController(),
@@ -434,8 +644,193 @@ Widget tabbarView({required String title}) {
             },
           );
         }),
-      ),
+      ),*/
     ],
+  );
+}
+Widget buildProductThumbnail(Product product) {
+  return GestureDetector(
+    onTap: () {
+      // final productID= product.id.split();
+      print("......${product.id}");
+      String gid =
+          product
+              .id;
+      final controller = Get.put(ProductDetailScreen(title: product.title,product: product));
+      controller;
+      Get.to(ProductDetailScreen(product: product,title: product.title.toString()));
+      // String numericId = gid.split('/').last;
+      // Get.put(
+      //   ProductDetailsController(),
+      // ).fetchProduct(int.parse(numericId));
+      // Get.put(HomeController())
+      //     .selectedVariant
+      //     .value = null;
+      // Get.to(
+      //   BestSellerDetails(
+      //     id:
+      //     product
+      //         .id,
+      //     title:
+      //     product
+      //         .title,
+      //   ),
+      // );
+    },
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      spacing: 8,
+      children: [
+        Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(
+                10,
+              ),
+              child: Image(
+                image: NetworkImage(
+                  product
+                      .image
+                      .toString(),
+                ),
+              ),
+            ),
+            if (product.availableForSale==false)
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: greyColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: CustomText(
+                    text:
+                    product.availableForSale == true
+                        ? "Sold Out"
+                        : "Sold Out",
+                    leftPadding: 8,
+                    topPadding: 4,
+                    rightPadding: 8,
+                    bottomPadding: 4,
+                    fontSize: 12,
+                    maxLines: 1,
+                    fontFamily: "Roboto",
+                    color: whiteColor,
+                  ),
+                ),
+              ),
+            if (product.isAvailableForSale==false)
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: greyColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: CustomText(
+                    text:
+                    product.isAvailableForSale==false?"Sold Out":"",
+                    leftPadding: 8,
+                    topPadding: 4,
+                    rightPadding: 8,
+                    bottomPadding: 4,
+                    fontSize: 12,
+                    maxLines: 1,
+                    fontFamily: "Roboto",
+                    color: whiteColor,
+                  ),
+                ),
+              ),
+            if (product.hasComparablePrice==true)
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: primaryBlackColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: CustomText(
+                    text:
+                    product.hasComparablePrice == true
+                        ?"Sale"
+                        : "",
+                    leftPadding: 8,
+                    topPadding: 4,
+                    rightPadding: 8,
+                    bottomPadding: 4,
+                    fontSize: 12,
+                    maxLines: 1,
+                    fontFamily: "Roboto",
+                    color: whiteColor,
+                  ),
+                ),
+              ),
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: whiteColor.withOpacity(
+                    0.5,
+                  ),
+                  borderRadius:
+                  BorderRadius.circular(8),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icons_svg/cart_add_icon.svg',
+                ),
+              ),
+            ),
+          ],
+        ),
+        CustomText(
+          text:
+          product
+              .title
+              .toString(),
+          fontSize: 14,
+          maxLines: 2,
+          fontFamily: "Roboto",
+          color: whiteColor,
+          fontWeight: FontWeight.w500,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            CustomText(
+              text:
+              "\$${product.price.toString()}",
+              fontSize: 12,
+              maxLines: 1,
+              fontFamily: "Roboto",
+
+              color: whiteColor,
+              fontWeight: FontWeight.w400,
+            ),
+            if(product.hasComparablePrice==true)
+            CustomText(
+              text:
+              "\$${product.compareAtPrice.toString()}",
+              fontSize: 12,
+              maxLines: 1,
+
+               // decorationStyle:  TextDecorationStyle.dashed,
+              decoration: TextDecoration.lineThrough,
+              fontFamily: "Roboto",
+
+              color: redColor,
+              fontWeight: FontWeight.w400,
+            ),
+          ],
+        ),
+      ],
+    ),
   );
 }
 
@@ -542,4 +937,6 @@ Widget tabbarViewWholesale({required String title}) {
       ),
     ],
   );
+
 }
+

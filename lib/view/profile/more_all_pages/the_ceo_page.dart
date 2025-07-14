@@ -35,7 +35,7 @@ class TheCeoPage extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: MyAppBarWidget(
-            title: "The CEO".toUpperCase(),
+            title: "The CEO".tr.toUpperCase(),
             titleImage: true,
             actions: true,
             actionsWidget:

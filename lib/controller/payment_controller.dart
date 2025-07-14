@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 
 import '../utills/app_colors.dart';
 import '../widget/custom_dialog.dart';
-import 'cart_controller.dart' show CartController;
+import 'cart_controller.dart' show CartController, CartSaloonController;
 
 class PaymentController extends GetxController {
   initializeStripe({required String publishKey}) async {
@@ -62,7 +62,7 @@ Map<String, dynamic> paymentIntent = await createPaymentIntent(
 
         // if(isPaymentDone){
           FirebaseFirestore.instance.collection("ServiceBook").add({
-            'items': Get.find<CartController>().cartItems.map((e) => e.toJson()).toList(),
+            'items': Get.find<CartSaloonController>().cartItems.map((e) => e.toJson()).toList(),
             "userId": FirebaseAuth.instance.currentUser!.uid,
             "email": FirebaseAuth.instance.currentUser!.email
           }).then((va){

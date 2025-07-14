@@ -22,7 +22,7 @@ showLanguageDialog() {
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     title: Center(
       child: CustomText(
-        text: 'Language',
+        text: 'Language'.tr,
         color: primaryBlackColor,
         fontSize: 18,
         fontWeight: FontWeight.w600,
@@ -78,7 +78,7 @@ showLanguageDialog() {
               }),
               SizedBox(height: 20),
               CustomButton(
-                text: "Save".toUpperCase(),
+                text: "Save".tr.toUpperCase(),
                 onPressed: () {
                   final localizationController =
                       Get.find<LocalizationController>();
@@ -111,7 +111,7 @@ showChangePasswordDialog(ProfileController controller) {
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     title: Center(
       child: CustomText(
-        text: 'Change Password',
+        text: 'Change Password'.tr,
         color: primaryBlackColor,
         fontSize: 18,
         fontWeight: FontWeight.w600,
@@ -125,7 +125,7 @@ showChangePasswordDialog(ProfileController controller) {
         children: [
           Obx(
             () => CustomTextField(
-              hintText: "Current Password",
+              hintText: "Current Password".tr,
               // textEditingController: controller.nameController,
               onChanged: (p0) => controller.name.value = p0!,
               obscureText: controller.isObscure.value,
@@ -152,7 +152,7 @@ showChangePasswordDialog(ProfileController controller) {
           SizedBox(height: 16),
           Obx(
             () => CustomTextField(
-              hintText: "New Password",
+              hintText: "New Password".tr,
               // textEditingController: controller.nameController,
               onChanged: (val) => controller.newPassword.value = val!,
               obscureText: controller.isObscureNew.value,
@@ -179,7 +179,7 @@ showChangePasswordDialog(ProfileController controller) {
           SizedBox(height: 16),
           Obx(
             () => CustomTextField(
-              hintText: "New Password",
+              hintText: "Confirm New Password".tr,
               // textEditingController: controller.nameController,
               obscureText: controller.isObscureConfirm.value,
               onChanged: (val) => controller.confirmPassword.value = val!,
@@ -209,7 +209,7 @@ showChangePasswordDialog(ProfileController controller) {
             children: [
               Expanded(
                 child: CustomButton(
-                  text: "Save".toUpperCase(),
+                  text: "Save".tr.toUpperCase(),
                   onPressed: () {
                     Get.back();
                   },
@@ -223,7 +223,7 @@ showChangePasswordDialog(ProfileController controller) {
               ),
               Expanded(
                 child: CustomButton(
-                  text: "Cacel".toUpperCase(),
+                  text: "Cancel".tr.toUpperCase(),
                   onPressed: () {
                     Get.back();
                   },
@@ -315,7 +315,7 @@ Widget languagePopupMenu(LanguageController languageController) {
             ),
             child: Text(
               languageController.selectIndex == -1
-                  ? 'select_a_language'.tr
+                  ? 'Select a Language'.tr
                   : languageController
                       .languages[languageController.selectIndex]
                       .languageName,

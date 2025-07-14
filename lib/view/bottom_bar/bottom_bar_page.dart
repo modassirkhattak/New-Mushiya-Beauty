@@ -8,6 +8,7 @@ import 'package:mushiya_beauty/view/profile/main_profile_nav_page.dart'
 import 'package:mushiya_beauty/view/saloon/saloon_page.dart';
 import 'package:mushiya_beauty/view/shop/shop_page.dart' show ShopPage;
 import 'package:mushiya_beauty/view/try_on/try_on_home_page.dart';
+import 'package:mushiya_beauty/widget/custom_button.dart';
 import 'package:mushiya_beauty/widget/custom_text.dart';
 import 'package:mushiya_beauty/widget/drawer_widget.dart';
 import 'package:svg_flutter/svg.dart';
@@ -172,17 +173,46 @@ class BottomBarPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: DrawerWidget(),
-      backgroundColor: Colors.black,
-      body: Obx(() => pages[controller.selectedIndex.value]),
+    return WillPopScope(
+      onWillPop: () async {
+        // Show confirmation dialog
+        bool shouldExit = await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Exit App'),
+            content: const Text('Do you want to exit the app?'),
+            actions: [
+              CustomButton(
+                textColor: primaryBlackColor,
+                elevation: 0,
+                backgroundColor: whiteColor,
+                onPressed: () => Navigator.of(context).pop(false),
+                text: 'No',
+              ),
+              CustomButton(
+                elevation: 0,
+                backgroundColor: whiteColor,
+                textColor: primaryBlackColor,
+                onPressed: () => Navigator.of(context).pop(true),
+                text: 'Yes',
+              ),
+            ],
+          ),
+        );
+        return shouldExit;
+      },
+      child: Scaffold(
+        drawer: DrawerWidget(),
+        backgroundColor: Colors.black,
+        body: Obx(() => pages[controller.selectedIndex.value]),
 
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0, left: 16, right: 16),
-        child: Obx(
-          () => CustomBottomNavBar(
-            currentIndex: controller.selectedIndex.value,
-            onTap: controller.changeIndex,
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(bottom: 20.0, left: 16, right: 16),
+          child: Obx(
+            () => CustomBottomNavBar(
+              currentIndex: controller.selectedIndex.value,
+              onTap: controller.changeIndex,
+            ),
           ),
         ),
       ),

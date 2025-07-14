@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:mushiya_beauty/utills/app_colors.dart';
 import 'package:mushiya_beauty/view/profile/main_profile_nav_page.dart';
 import 'package:mushiya_beauty/widget/custom_appbar.dart';
@@ -12,13 +13,13 @@ class SocialMediaPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize:  Size.fromHeight(60),
         child: MyAppBarWidget(
-          title: 'Social media'.toUpperCase(),
+          title: 'Social media'.tr.toUpperCase(),
           titleImage: false,
           actions: true,
           actionsWidget: null,
-          leadingButton: false,
+          leadingButton: true,
         ),
       ),
       body: Padding(
@@ -31,7 +32,7 @@ class SocialMediaPage extends StatelessWidget {
               children: [
                 menuItem(
                   'assets/icons_svg/facebook-like.svg',
-                  'Facebook',
+                  'Facebook'.tr,
                   color: whiteColor,
                   onPressed: () async {
                     final uri = Uri.parse(
@@ -50,7 +51,7 @@ class SocialMediaPage extends StatelessWidget {
                 const SizedBox(width: 20),
                 menuItem(
                   'assets/icons_svg/Twitter--Streamline-Bootstrap.svg',
-                  'Twitter',
+                  'Twitter'.tr,
                   color: whiteColor,
                   onPressed: () async {
                     final uri = Uri.parse(
@@ -68,7 +69,7 @@ class SocialMediaPage extends StatelessWidget {
                 const SizedBox(width: 20),
                 menuItem(
                   'assets/icons_svg/instagram-follow.svg',
-                  'Instagram',
+                  'Instagram'.tr,
                   color: whiteColor,
                   onPressed: () async {
                     final uri = Uri.parse(
@@ -86,7 +87,7 @@ class SocialMediaPage extends StatelessWidget {
                 const SizedBox(width: 20),
                 menuItem(
                   'assets/icons_svg/Youtube--Streamline-Simple-Icons.svg',
-                  'YouTube',
+                  'YouTube'.tr,
                   color: whiteColor,
                   onPressed: () async {
                     final uri = Uri.parse(
@@ -104,7 +105,7 @@ class SocialMediaPage extends StatelessWidget {
                 const SizedBox(width: 20),
                 menuItem(
                   'assets/icons_svg/Tiktok--Streamline-Plump.svg',
-                  'TikTok',
+                  'TikTok'.tr,
                   color: whiteColor,
                   onPressed: () async {
                     final uri = Uri.parse(
@@ -122,7 +123,7 @@ class SocialMediaPage extends StatelessWidget {
                 const SizedBox(width: 20),
                 menuItem(
                   'assets/icons_svg/Pinterest--Streamline-Bootstrap.svg',
-                  'Pinterest',
+                  'Pinterest'.tr,
                   color: whiteColor,
                   onPressed: () async {
                     final uri = Uri.parse(

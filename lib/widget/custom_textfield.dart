@@ -32,7 +32,7 @@ class CustomTextField extends StatelessWidget {
   final bool? readOnly;
   List<TextInputFormatter>? inputFormatters;
   double elevation;
-  final String? Function(String?)? onChanged;
+  final  Function(String?)? onChanged;
   final Color? borderColor; // ✅ NEW
 
   CustomTextField({

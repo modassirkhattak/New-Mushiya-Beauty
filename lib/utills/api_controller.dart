@@ -13,6 +13,16 @@ const String ARTICLES_URL = 'articles.json';
 const String CART_URL = 'https://runwaycurls.myshopify.com/cart/add.js';
 const String ORDER_URL = 'orders.json';
 const String COLLECTIONS_URL = 'custom_collections.json';
+
+// policy page
+const String RETURN_POLICY = 'return-policy';
+const String REFUND_POLICY = 'return-policy';
+const String PARTNER_POLICY = 'return-policy';
+const String SHIPPING_POLICY = 'shipping-policy';
+const String PRIVACY_POLICY_URL = 'privacy-policy';
+const String BEST_SELLER = "gid://shopify/Collection/87225499707";
+
+
 // const String COSTOMER_PROFILE_URL = 'https://runwaycurls.myshopify.com/admin/api/2025-01/';
 // const String COLLECTIONS_SUB_PRODUCTS_URL = 'custom_collections.json';
 

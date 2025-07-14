@@ -89,7 +89,7 @@ class CustomText extends StatelessWidget {
                 : TextStyle(
                   // : GoogleFonts.roboto(
                   decoration: decoration,
-                  // decorationColor: color ?? Colors.black,
+                  decorationColor: color ?? Colors.black,
                   decorationStyle: decorationStyle,
                   fontSize: fontSize ?? 16,
                   color: color ?? Colors.black,

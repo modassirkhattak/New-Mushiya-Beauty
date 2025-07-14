@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mushiya_beauty/new_app/screens/product_detail_screen.dart';
 import 'package:mushiya_beauty/utills/app_colors.dart';
+import 'package:mushiya_beauty/widget/custom_text.dart';
 import 'package:mushiya_beauty/widget/custom_textfield.dart';
 import 'package:shopify_flutter/shopify_flutter.dart';
 import '../../controller/home_controller.dart';
@@ -121,20 +123,9 @@ class SearchTabState extends State<SearchTab> {
     return GestureDetector(
       onTap: (){
         print("......${product.id}");
-        String gid =
-            product.id;
-        String numericId = gid.split('/').last;
-        Get.put(
-          ProductDetailsController(),
-        ).fetchProduct(int.parse(numericId));
-        Get.put(HomeController()).selectedVariant.value = null;
-        Get.to(
-          SearchProductDetailsPage(
-            homeModel: product,
-            title:
-            product.title,
-          ),
-        );
+        final controller = Get.put(ProductDetailScreen(title: product.title,product: product));
+        controller;
+        Get.to(ProductDetailScreen(product: product,title: product.title.toString()));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -162,13 +153,24 @@ class SearchTabState extends State<SearchTab> {
                 fontSize: 14,
               ),
             ),
+            
             const SizedBox(height: 4),
-            Text(
-              product.formattedPrice,
-              style: const TextStyle(
-                color: whiteColor,
-                fontWeight: FontWeight.w600,
-              ),
+            Row(
+              spacing: 10,
+              children: [
+                Text(
+                  product.formattedPrice,
+                  style: const TextStyle(
+                    color: whiteColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if(product.hasComparablePrice==true)
+                CustomText(text: product.compareAtPriceFormatted,color: redColor,
+                  decoration: TextDecoration.lineThrough,
+                  fontSize: 14,
+                  )
+              ],
             ),
           ],
         ),

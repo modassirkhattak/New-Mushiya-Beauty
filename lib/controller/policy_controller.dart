@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:mushiya_beauty/model/policy_model.dart';
+import 'package:mushiya_beauty/utills/api_controller.dart';
 import 'package:mushiya_beauty/utills/services.dart';
+import 'package:http/http.dart' as http;
 
 class PolicyController extends GetxController {
   final ApiServices _apiService = ApiServices();
@@ -143,5 +147,59 @@ class PolicyController extends GetxController {
 
   void retryrefundPolicy() {
     fetchRefundPolicy();
+  }
+
+
+  final String storeUrl = "https://runwaycurls.myshopify.com";
+  final String storeToken = STORE_TOKEN; // replace it
+  final String apiVersion = "2025-04";
+  final Rx<ShopifyPageModel?> page = Rx<ShopifyPageModel?>(null);
+  final RxBool isPolicyLoading = false.obs;
+
+  Future<void> fetchPageContent(String handle) async {
+    isPolicyLoading.value = true;
+
+    try {
+      final uri = Uri.parse("$storeUrl/api/$apiVersion/graphql.json");
+      final headers = {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': storeToken,
+      };
+
+      final query = '''
+        query {
+          page(handle: "$handle") {
+            id
+            title
+            body
+          }
+        }
+      ''';
+
+      final response = await http.post(
+        uri,
+        headers: headers,
+        body: jsonEncode({'query': query}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final pageJson = data['data']['page'];
+        if (pageJson != null) {
+          page.value = ShopifyPageModel.fromJson(pageJson);
+        } else {
+          Get.snackbar("Error", "Page not found");
+        }
+      } else {
+        Get.snackbar("Error", "API Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      Get.snackbar("Exception", e.toString());
+    } finally {
+      isPolicyLoading.value = false;
+    }
+  }
+  retryPageContent(String handle) {
+    fetchPageContent(handle);
   }
 }

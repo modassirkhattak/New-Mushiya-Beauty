@@ -19,6 +19,7 @@ import 'package:mushiya_beauty/widget/custom_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:svg_flutter/svg.dart';
 
+import '../../controller/policy_controller.dart';
 import '../../controller/product_details_controller.dart';
 import '../../model/collection_sub_product_model.dart';
 import 'dart:developer';
@@ -31,6 +32,7 @@ import 'package:shopify_flutter/models/src/cart/inputs/attribute_input/attribute
 import 'package:shopify_flutter/shopify_flutter.dart';
 
 import '../../new_app/screens/cart_tab.dart';
+import '../../utills/api_controller.dart';
 
 class CustomCollectDetails extends StatefulWidget {
   CustomCollectDetails({
@@ -180,10 +182,11 @@ class _CustomCollectDetailsState extends State<CustomCollectDetails> {
       if (!mounted) return;
       context.showSnackBar('Added ${product.title} to cart');
     } on ShopifyException catch (error) {
-      log('addLineItemToCart ShopifyException: ${error.errors?[0]["message"]}');
+      print(error);
+      // log('addLineItemToCart ShopifyException: ${error.errors?[0]["message"]}');
       if (!mounted) return;
       context.showSnackBar(
-        error.errors?[0]["message"] ?? 'Error adding item to cart',
+        error.errors?[0] ?? 'Error adding item to cart',
       );
     } catch (error) {
       log('addLineItemToCart Error: $error');
@@ -670,11 +673,22 @@ class _CustomCollectDetailsState extends State<CustomCollectDetails> {
                 ),
                 const SizedBox(height: 16),
                 CustomTabWidget(
-                  children: [
-                    Tab(text: 'Description'),
-                    Tab(text: 'Shipping policy'),
-                    Tab(text: 'Return policy'),
-                  ],
+                    children: [
+                      Tab(text: 'Description'),
+                      Tab(text: 'Shipping policy'),
+                      Tab(text: 'Return policy'),
+
+                    ],
+                    onTap: (value) {
+                      print(value);
+                      if(value == 0){
+
+
+                      } else if(value == 1){
+                        Get.put(PolicyController()).fetchPageContent(SHIPPING_POLICY);
+                      } else if(value == 2){
+                        Get.put(PolicyController()).fetchPageContent(RETURN_POLICY);
+                      }}
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.30,
@@ -687,12 +701,14 @@ class _CustomCollectDetailsState extends State<CustomCollectDetails> {
                       ),
                       TheShoppingPolicyPage(
                         isPage: false,
+                        handle: SHIPPING_POLICY,
                         // homeModel: homeModel,
                         // title: "Shipping policy",
                         // description: "adsadas",
                       ),
                       PartnerPolicyPage(
                         isPage: false,
+                        handle:   RETURN_POLICY,
                         // homeModel: homeModel,
                         // title: "Return policy",
                         // description: "jksdjksa",
@@ -766,15 +782,7 @@ Widget tabbarView({
           },
         ),
         SizedBox(height: 80),
-        // CustomText(
-        //   text:
-        //       description,
-        //   fontSize: 12,
-        //   fontFamily: 'Roboto',
-        //   color: whiteColor,
-        //   maxLines: 90,
-        //   fontWeight: FontWeight.w400,
-        // ),
+
       ],
     ),
   );

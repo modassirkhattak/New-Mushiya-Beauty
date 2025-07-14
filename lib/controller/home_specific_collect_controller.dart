@@ -147,7 +147,7 @@ class HomeSpecificCollectController extends GetxController {
       applyFiltersAndSort();
     } catch (e) {
       isCollProderrorMessage.value = e.toString();
-      Get.snackbar('Error', isCollProderrorMessage.value);
+      // Get.snackbar('Error', isCollProderrorMessage.value);
     } finally {
       isCollProdLoading.value = false;
       isCollProdLoadingMore.value = false;

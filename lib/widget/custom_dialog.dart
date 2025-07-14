@@ -94,7 +94,7 @@ class ResetLinkDialog extends StatelessWidget {
                 onPressed: () {
                   if (condition == "order_success") {
                     // Get.back();
-                    Get.find<CartController>().cartItems.clear();
+                    Get.find<CartSaloonController>().cartItems.clear();
                     Get.offAll(() => BottomBarPage());
                   } else if (condition == "request_success") {
                     Get.to(() => WholeSalePage());

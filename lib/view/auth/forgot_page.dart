@@ -51,7 +51,7 @@ class ForgotPage extends StatelessWidget {
                   children: [
                     Center(
                       child: CustomText(
-                        text: "Verify email".toUpperCase(),
+                        text: "Verify email".toUpperCase().tr,
                         fontSize: 22,
                         fontFamily: 'Archivo',
                         color: primaryBlackColor,
@@ -64,7 +64,7 @@ class ForgotPage extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 12.0),
                         child: CustomText(
                           text:
-                              "No worries. Baby naps enhance memory. Enter your email.",
+                              "No worries. Baby naps enhance memory. Enter your email.".tr,
                           fontSize: 16,
                           maxLines: 2,
                           textAlign: TextAlign.center,
@@ -78,7 +78,7 @@ class ForgotPage extends StatelessWidget {
                     CustomTextField(
                       keyboardType: TextInputType.emailAddress,
                       height: 48,
-                      hintText: 'Email',
+                      hintText: 'Email'.tr,
                       textEditingController: controller.emailController,
                       fillColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -95,14 +95,14 @@ class ForgotPage extends StatelessWidget {
                         () =>
                             controller.onClick.value == true &&
                                     controller.verifyPinController.text == ""
-                                ? const Text(
-                                  "Enter the code.",
+                                ?  Text(
+                                  "Enter the code.".tr,
                                   style: TextStyle(color: Colors.red),
                                 )
                                 : controller.onClick.value == true &&
                                     controller.verifyPinController.length != 6
-                                ? const Text(
-                                  "The code must be of 6 digits.",
+                                ?  Text(
+                                  "The code must be of 6 digits.".tr,
                                   style: TextStyle(color: Colors.red),
                                 )
                                 : const SizedBox(),
@@ -110,7 +110,7 @@ class ForgotPage extends StatelessWidget {
                     ),
                     SizedBox(height: 24),
                     CustomButton(
-                      text: "Submit".toUpperCase(),
+                      text: "Submit".toUpperCase().tr,
                       onPressed: () async {
                         showDialog(
                           context: context,
@@ -146,7 +146,7 @@ class ForgotPage extends StatelessWidget {
 
                     Center(
                       child: CustomText(
-                        text: "Resend!".toUpperCase(),
+                        text: "Resend!".toUpperCase().tr,
                         fontSize: 16,
                         fontFamily: 'Roboto',
                         color: primaryBlackColor,

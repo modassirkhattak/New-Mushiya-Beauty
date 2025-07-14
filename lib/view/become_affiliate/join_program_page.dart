@@ -18,7 +18,7 @@ class JoinProgramPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: MyAppBarWidget(
-          title: "Join Program".toUpperCase(),
+          title: "Join Program".tr.toUpperCase(),
           titleImage: true,
           actions: true,
 
@@ -67,7 +67,7 @@ class JoinProgramPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: CustomTextField(
-                    hintText: "First name",
+                    hintText: "First name".tr,
                     textEditingController: TextEditingController(),
                     isBorder: true,
                     textColor: whiteColor,
@@ -77,7 +77,7 @@ class JoinProgramPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: CustomTextField(
-                    hintText: "Last name",
+                    hintText: "Last name".tr,
                     textEditingController: TextEditingController(),
                     isBorder: true,
                     textColor: whiteColor,
@@ -89,7 +89,7 @@ class JoinProgramPage extends StatelessWidget {
             ),
             SizedBox(height: 24),
             CustomTextField(
-              hintText: "Email",
+              hintText: "Email".tr,
               textEditingController: TextEditingController(),
               isBorder: true,
               textColor: whiteColor,
@@ -98,7 +98,7 @@ class JoinProgramPage extends StatelessWidget {
             ),
             SizedBox(height: 24),
             CustomTextField(
-              hintText: "Phone number",
+              hintText: "Phone number".tr,
               textEditingController: TextEditingController(),
               isBorder: true,
               textColor: whiteColor,
@@ -107,7 +107,7 @@ class JoinProgramPage extends StatelessWidget {
             ),
             SizedBox(height: 24),
             CustomTextField(
-              hintText: "Preferred payout method",
+              hintText: "Preferred payout method".tr,
               textEditingController: TextEditingController(),
               isBorder: true,
               textColor: whiteColor,
@@ -129,7 +129,7 @@ class JoinProgramPage extends StatelessWidget {
             ),
             SizedBox(height: 40),
             CustomButton(
-              text: "Continue",
+              text: "Continue".tr,
               onPressed: () {
                 Get.to(PaymentSelectionPage(selectedPaymentMethod: "referral"));
               },
@@ -143,7 +143,7 @@ class JoinProgramPage extends StatelessWidget {
             SizedBox(height: 24),
             Center(
               child: CustomText(
-                text: "It’s free and easy to join",
+                text: "It’s free and easy to join".tr,
                 color: whiteColor,
                 fontFamily: "Roboto",
                 maxLines: 3,

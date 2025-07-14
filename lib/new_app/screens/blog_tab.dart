@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart' hide Page;
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+// import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:shopify_flutter/models/src/article/articles/articles.dart';
 import 'package:shopify_flutter/shopify_flutter.dart';
 
@@ -264,13 +264,13 @@ class _PagePageState extends State<PagePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: HtmlWidget(
-                        page?.body ?? 'No Content',
-                        renderMode: RenderMode.listView,
-                        textStyle: const TextStyle(fontSize: 14),
-                      ),
-                    ),
+                    // Expanded(
+                    //   child: HtmlWidget(
+                    //     page?.body ?? 'No Content',
+                    //     renderMode: RenderMode.listView,
+                    //     textStyle: const TextStyle(fontSize: 14),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

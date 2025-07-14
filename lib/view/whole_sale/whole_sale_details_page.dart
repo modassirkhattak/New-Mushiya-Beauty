@@ -18,7 +18,7 @@ class WholeSaleDetailsPage extends StatelessWidget {
 
   final WholeSalePrroductModel wholeSalePrroductModel;
   final WholeSaleController controller = Get.put(WholeSaleController());
-  final cartController = Get.put(CartController());
+  final cartController = Get.put(CartSaloonController());
 
   @override
   Widget build(BuildContext context) {

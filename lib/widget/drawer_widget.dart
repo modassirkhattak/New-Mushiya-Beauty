@@ -72,7 +72,7 @@ class DrawerWidget extends StatelessWidget {
 
                   // Find the menu with handle 'new-menu'
                   final newMenu = _controller.menuResponse.menus.firstWhere(
-                    (menu) => menu.handle == 'menu-mushiya-wix-inspired',
+                    (menu) => menu.handle == 'mushiya-beauty-app-menu',
                     orElse:
                         () => MenuModel(
                           id: '',

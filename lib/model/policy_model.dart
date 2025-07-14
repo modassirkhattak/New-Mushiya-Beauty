@@ -39,3 +39,23 @@ class PolicyResponse {
     return PolicyResponse(policies: policies);
   }
 }
+
+class ShopifyPageModel {
+  final String id;
+  final String title;
+  final String body;
+
+  ShopifyPageModel({
+    required this.id,
+    required this.title,
+    required this.body,
+  });
+
+  factory ShopifyPageModel.fromJson(Map<String, dynamic> json) {
+    return ShopifyPageModel(
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      body: json['body'] ?? '',
+    );
+  }
+}

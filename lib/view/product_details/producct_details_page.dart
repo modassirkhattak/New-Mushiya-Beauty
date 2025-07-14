@@ -26,7 +26,9 @@ import 'package:shopify_flutter/mixins/src/shopify_error.dart';
 import 'package:shopify_flutter/models/src/cart/inputs/attribute_input/attribute_input.dart';
 import 'package:shopify_flutter/shopify_flutter.dart';
 
+import '../../controller/policy_controller.dart';
 import '../../new_app/screens/cart_tab.dart';
+import '../../utills/api_controller.dart';
 
 class ProducctDetailsPage extends StatefulWidget {
   ProducctDetailsPage({
@@ -629,11 +631,22 @@ class _ProducctDetailsPageState extends State<ProducctDetailsPage> {
               ),
               const SizedBox(height: 16),
               CustomTabWidget(
-                children: [
-                  Tab(text: 'Description'),
-                  Tab(text: 'Shipping policy'),
-                  Tab(text: 'Return policy'),
-                ],
+                  children: [
+                    Tab(text: 'Description'),
+                    Tab(text: 'Shipping policy'),
+                    Tab(text: 'Return policy'),
+
+                  ],
+                  onTap: (value) {
+                    print(value);
+                    if(value == 0){
+
+
+                    } else if(value == 1){
+                      Get.put(PolicyController()).fetchPageContent(SHIPPING_POLICY);
+                    } else if(value == 2){
+                      Get.put(PolicyController()).fetchPageContent(RETURN_POLICY);
+                    }}
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.90,
@@ -644,8 +657,8 @@ class _ProducctDetailsPageState extends State<ProducctDetailsPage> {
                       title: "Description",
                       description: widget.homeModel.bodyHtml,
                     ),
-                    TheShoppingPolicyPage(isPage: false),
-                    PartnerPolicyPage(isPage: false),
+                    TheShoppingPolicyPage(isPage: false,handle: SHIPPING_POLICY,),
+                    PartnerPolicyPage(isPage: false,       handle:   RETURN_POLICY,),
                   ],
                 ),
               ),

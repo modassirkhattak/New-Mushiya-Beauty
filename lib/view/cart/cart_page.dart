@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mushiya_beauty/new_app/constants.dart';
 import 'package:mushiya_beauty/new_app/extension.dart';
 import 'package:mushiya_beauty/new_app/screens/checkout_webview.dart';
@@ -311,178 +312,123 @@ class _CartInfoState extends State<CartInfo> {
                                 )
                                 : SingleChildScrollView(
                                   child: Column(
-                                    children:
-                                        cart!.lines.map((line) {
-                                          final merchandise = line.merchandise;
-                                          if (merchandise == null) {
-                                            return const SizedBox();
-                                          }
-                                          return Column(
+                                    children: cart!.lines.map((line) {
+                                      final merchandise = line.merchandise;
+                                      if (merchandise == null) return const SizedBox();
+
+                                      return Container(
+                                        margin: const EdgeInsets.only(bottom: 24.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Slidable(
+                                          key: ValueKey(line.id),
+                                          endActionPane: ActionPane(
+                                            motion: const ScrollMotion(),
+                                            extentRatio: 0.25,
                                             children: [
-                                              Container(
-                                                margin: EdgeInsets.only(
-                                                  bottom: 24.0,
+
+                                              SlidableAction(
+
+                                                onPressed: (context) => removeLineItemFromCart("${line.id}"),
+                                                backgroundColor: Colors.red,
+                                                foregroundColor: Colors.white,
+                                                icon: Icons.delete,
+                                                label: 'Delete',
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Container(
+                                            // margin: const EdgeInsets.only(bottom: 24.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Image.network(
+                                                  merchandise.product?.image.toString() ?? '',
+                                                  height: 75,
+                                                  width: 88,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error, stackTrace) => Image.asset(
+                                                    'assets/extra_images/product_placeholder.png',
+                                                    height: 75,
+                                                    width: 88,
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        right: 10.0,
-                                                        bottom: 6.0,
-                                                        top: 6.0,
-                                                        left: 4.0,
-                                                      ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    spacing: 8.0,
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Image.network(
-                                                        merchandise
-                                                                .product
-                                                                ?.image
-                                                                .toString() ??
-                                                            '',
-                                                        height: 75,
-                                                        width: 88,
-                                                        fit: BoxFit.cover,
-                                                        errorBuilder:
-                                                            (
-                                                              context,
-                                                              error,
-                                                              stackTrace,
-                                                            ) => Image.asset(
-                                                              'assets/extra_images/product_placeholder.png',
-                                                              height: 75,
-                                                              width: 88,
-                                                              fit: BoxFit.cover,
-                                                            ),
+                                                      CustomText(
+                                                        text: merchandise.product?.title ?? merchandise.title,
+                                                        fontSize: 14,
+                                                        maxLines: 2,
+                                                        fontFamily: "Roboto",
+                                                        fontWeight: FontWeight.w500,
                                                       ),
-                                                      Expanded(
-                                                        flex: 3,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          spacing: 8.0,
+                                                      const SizedBox(height: 8),
+                                                      Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                                        decoration: BoxDecoration(
+                                                          borderRadius: BorderRadius.circular(6),
+                                                          border: Border.all(
+                                                            color: primaryBlackColor,
+                                                            width: 0.8,
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
                                                           children: [
-                                                            CustomText(
-                                                              text:
-                                                                  merchandise
-                                                                      .product
-                                                                      ?.title ??
-                                                                  merchandise
-                                                                      .title,
-                                                              fontSize: 14,
-                                                              maxLines: 2,
-                                                              fontFamily:
-                                                                  "Roboto",
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
+                                                            GestureDetector(
+                                                              onTap: () => onCartItemUpdate(line, increment: false),
+                                                              child: Icon(Icons.remove, color: primaryBlackColor, size: 11),
                                                             ),
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        8.0,
-                                                                    vertical: 0,
-                                                                  ),
-                                                              decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      6,
-                                                                    ),
-                                                                border: Border.all(
-                                                                  color:
-                                                                      primaryBlackColor,
-                                                                  width: 0.8,
-                                                                ),
+                                                            Padding(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                                                              child: CustomText(
+                                                                text: line.quantity.toString(),
+                                                                fontSize: 14,
+                                                                fontFamily: 'Roboto',
+                                                                color: primaryBlackColor,
+                                                                fontWeight: FontWeight.w500,
                                                               ),
-                                                              child: Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                spacing: 10,
-                                                                children: [
-                                                                  GestureDetector(
-                                                                    onTap:
-                                                                        () => onCartItemUpdate(
-                                                                          line,
-                                                                          increment:
-                                                                              false,
-                                                                        ),
-                                                                    child: Icon(
-                                                                      Icons
-                                                                          .remove,
-                                                                      color:
-                                                                          primaryBlackColor,
-                                                                      size: 11,
-                                                                    ),
-                                                                  ),
-                                                                  CustomText(
-                                                                    text:
-                                                                        line.quantity
-                                                                            .toString(),
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontFamily:
-                                                                        'Roboto',
-                                                                    color:
-                                                                        primaryBlackColor,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
-                                                                  ),
-                                                                  GestureDetector(
-                                                                    onTap:
-                                                                        () => onCartItemUpdate(
-                                                                          line,
-                                                                        ),
-                                                                    child: Icon(
-                                                                      Icons.add,
-                                                                      color:
-                                                                          primaryBlackColor,
-                                                                      size: 11,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
+                                                            ),
+                                                            GestureDetector(
+                                                              onTap: () => onCartItemUpdate(line),
+                                                              child: Icon(Icons.add, color: primaryBlackColor, size: 11),
                                                             ),
                                                           ],
                                                         ),
                                                       ),
-                                                      CustomText(
-                                                        text:
-                                                            '\$${merchandise.price.amount.toStringAsFixed(2)}',
-                                                        fontSize: 18,
-                                                        fontFamily: "Archivo",
-                                                        color: primaryBlackColor,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
                                                     ],
                                                   ),
                                                 ),
-                                              ),
-                                              /*GestureDetector(
-                    onTap: () => removeLineItemFromCart("${line.id}"),
-                    child: const Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                    size: 20.0,
-                    ),
-                    )*/
-                                            ],
-                                          );
-                                        }).toList(),
+                                                const SizedBox(width: 8),
+                                                CustomText(
+                                                  text: '\$${merchandise.price.amount.toStringAsFixed(2)}',
+                                                  fontSize: 18,
+                                                  fontFamily: "Archivo",
+                                                  color: primaryBlackColor,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
                                   ),
-                                ),
+
+                            ),
                       ),
                       // const Spacer(),
                       const SizedBox(height: 12),

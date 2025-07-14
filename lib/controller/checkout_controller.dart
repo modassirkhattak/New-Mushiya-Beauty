@@ -29,8 +29,8 @@ class CheckoutController extends GetxController {
   final paymentMethods = [
     {'name': 'PayPal', 'icon': 'assets/icons_svg/PayPal.svg'},
     {'name': 'Stripe', 'icon': 'assets/icons_svg/PayPal.svg'},
-    {'name': 'Apple Pay', 'icon': 'assets/icons_svg/Group.svg'},
-    {'name': 'Google Pay', 'icon': 'assets/icons_svg/PayPal.svg'},
+    // {'name': 'Apple Pay', 'icon': 'assets/icons_svg/Group.svg'},
+    // {'name': 'Google Pay', 'icon': 'assets/icons_svg/PayPal.svg'},
   ];
 
   Rx<CartModel?> cartModel = Rx<CartModel?>(null);

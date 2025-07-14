@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mushiya_beauty/model/booked_event_model.dart';
@@ -46,99 +48,6 @@ class OrderHistoryController extends GetxController {
     super.onInit();
     // Simulate initial order data with categories and statuses
     _orders.assignAll([
-      // Order History
-      {
-        'id': '1234',
-        'name': 'new year city 3',
-        'price': '\$600',
-        'items': 3,
-        'date': '6/6/2024',
-        'status': 'active',
-        'category': 'order',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      {
-        'id': '1234',
-        'name': 'new year city',
-        'price': '\$600',
-        'items': 3,
-        'date': '6/6/2024',
-        'status': 'active',
-        'category': 'order',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      {
-        'id': '1234',
-        'name': 'City Afro',
-        'price': '\$600',
-        'items': 3,
-        'date': '6/6/2024',
-        'status': 'active',
-        'category': 'order',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      {
-        'id': '1234',
-        'name': 'City Afro complete',
-        'price': '\$400',
-        'items': 3,
-        'date': '6/6/2024',
-        'status': 'completed',
-        'category': 'order',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      {
-        'id': '1235',
-        'name': 'City Afro',
-        'price': '\$400',
-        'items': 3,
-        'date': '5/23/2025',
-        'status': 'active',
-        'category': 'order',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      // Salon Booking
-      {
-        'id': '5678',
-        'name': 'Salon Service',
-        'price': '\$150',
-        'items': 1,
-        'date': '5/22/2025',
-        'status': 'active',
-        'category': 'salon',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      {
-        'id': '5679',
-        'name': 'Salon Service',
-        'price': '\$150',
-        'items': 1,
-        'date': '5/20/2025',
-        'status': 'completed',
-        'category': 'salon',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      // Event Booking
-      {
-        'id': '9012',
-        'name': 'Event Ticket',
-        'price': '\$200',
-        'items': 2,
-        'date': '5/25/2025',
-        'status': 'active',
-        'category': 'event',
-        'image': 'assets/extra_images/girl_2.png',
-      },
-      {
-        'id': '9013',
-        'name': 'Event Ticket',
-        'price': '\$200',
-        'items': 2,
-        'date': '5/21/2025',
-        'status': 'completed',
-        'category': 'event',
-        'image': 'assets/extra_images/girl_2.png',
-      },
     ]);
   }
 
@@ -152,7 +61,7 @@ class OrderHistoryController extends GetxController {
 
   void viewDetails(OrderModel order, {required String tag}) {
     if (tag == '') {
-      Get.to(() => OrderDetailsPage(order: order, title: "Order Summary"));
+      // Get.to(() => OrderDetailsPage(order: order, title: "Order Summary"));
     } else if (tag == 'salon') {
       // Get.to(
       // () => SaloonBookingDetailsPage(order: order, title: "Salon bookings"),
@@ -178,7 +87,19 @@ class OrderHistoryController extends GetxController {
     errorMessage.value = '';
     try {
       final response = await ApiServices().fetchOrders();
-      orderResponse.value = response; // Store the full OrderResponse
+
+      // Get current user's email
+      final String currentUserEmail ="verlez@yahoo.com";// FirebaseAuth.instance.currentUser!.email!;
+
+      // Filter orders by contact_email
+      final filteredOrders = response.orders
+          .where((order) => order.contactEmail == currentUserEmail)
+          .toList();
+
+      orderResponse.value = OrderResponse(
+        orders: filteredOrders,
+      );
+
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -192,6 +113,7 @@ class OrderHistoryController extends GetxController {
       isLoading.value = false;
     }
   }
+
 
   void retryFetchOrders() {
     fetchOrders();
@@ -212,4 +134,5 @@ class OrderHistoryController extends GetxController {
           bookedEvents.assignAll(data);
         });
   }
+  // booking orders history
 }

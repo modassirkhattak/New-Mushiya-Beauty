@@ -35,7 +35,7 @@ class BecomeAffiliateStartPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: MyAppBarWidget(
-          title: "Become affiliate".toUpperCase(),
+          title: "Become affiliate".tr.toUpperCase(),
           titleImage: true,
           actions: true,
 
@@ -51,7 +51,7 @@ class BecomeAffiliateStartPage extends StatelessWidget {
           children: [
             Center(
               child: CustomText(
-                text: "Become a Mushiya Affiliate",
+                text: "Become a Mushiya Affiliate".tr,
                 color: whiteColor,
                 fontFamily: "Roboto",
                 fontSize: 18,
@@ -64,7 +64,7 @@ class BecomeAffiliateStartPage extends StatelessWidget {
               child: Center(
                 child: CustomText(
                   text:
-                      "Share your love for Mushiya and earn commission on every sale made through your link!",
+                      "Share your love for Mushiya and earn commission on every sale made through your link!".tr,
                   color: whiteColor,
                   fontFamily: "Roboto",
                   maxLines: 3,
@@ -91,7 +91,7 @@ class BecomeAffiliateStartPage extends StatelessWidget {
             // ),
             SizedBox(height: 40),
             CustomButton(
-              text: "JOIN NOW",
+              text: "JOIN NOW".tr,
               onPressed: () {
                 Get.to(JoinProgramPage());
               },
@@ -105,7 +105,7 @@ class BecomeAffiliateStartPage extends StatelessWidget {
             SizedBox(height: 24),
             Center(
               child: CustomText(
-                text: "It’s free and easy to join",
+                text: "It’s free and easy to join".tr,
                 color: whiteColor,
                 fontFamily: "Roboto",
                 maxLines: 3,

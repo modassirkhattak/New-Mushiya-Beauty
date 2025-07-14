@@ -298,4 +298,7 @@ class HomeController extends GetxController {
       }
     }
   }
+
+
+  // shopify products
 }

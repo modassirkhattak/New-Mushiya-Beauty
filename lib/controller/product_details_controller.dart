@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:shopify_flutter/shopify_flutter.dart';
 
 import '../model/product_model.dart';
 import '../utills/services.dart';
@@ -41,7 +42,23 @@ class ProductDetailsController extends GetxController {
     }
   }
 
-  void selectVariant(int index) {
-    selectedVariantIndex.value = index;
+  // void selectVariant(int index) {
+  //   selectedVariantIndex.value = index;
+  // }
+
+
+  late Product productShopify;
+
+  Rx<ProductVariant?> selectedVariant = Rx<ProductVariant?>(null);
+  RxList<ProductVariant> variants = <ProductVariant>[].obs;
+
+  void setProduct(Product p) {
+    productShopify = p;
+    variants.value = p.productVariants;
+    selectedVariant.value = variants.isNotEmpty ? variants.first : null;
+  }
+
+  void selectVariant(ProductVariant variant) {
+    selectedVariant.value = variant;
   }
 }

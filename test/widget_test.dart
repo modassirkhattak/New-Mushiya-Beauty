@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mushiya_beauty/main.dart';
 import 'package:mushiya_beauty/new_app/main.dart';
 import 'package:mushiya_beauty/view/language/utils/get_di.dart' as di;
-import 'package:mushiya_beauty/view/try_on/main.dart';
+import 'package:mushiya_beauty/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.

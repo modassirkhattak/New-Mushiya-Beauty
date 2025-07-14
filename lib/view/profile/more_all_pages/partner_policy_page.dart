@@ -6,9 +6,10 @@ import 'package:mushiya_beauty/utills/app_colors.dart';
 import 'package:mushiya_beauty/widget/custom_appbar.dart';
 
 class PartnerPolicyPage extends StatelessWidget {
-  PartnerPolicyPage({super.key, required this.isPage});
+  PartnerPolicyPage({super.key, required this.isPage, required this.handle});
 
   final bool isPage;
+  final String handle;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class PartnerPolicyPage extends StatelessWidget {
               : PreferredSize(
                 preferredSize: const Size.fromHeight(60),
                 child: MyAppBarWidget(
-                  title: "Return policy".toUpperCase(),
+                  title: "Return policy".tr.toUpperCase(),
                   titleImage: true,
                   actions: true,
                   actionsWidget:
@@ -31,13 +32,15 @@ class PartnerPolicyPage extends StatelessWidget {
                 ),
               ),
       body: Obx(() {
-        if (controller.isLoading.value) {
+        if (controller.isPolicyLoading.value) {
           return const Center(
             child: Center(child: CircularProgressIndicator(color: whiteColor)),
           );
         }
 
-        if (controller.errorMessage.isNotEmpty) {
+        final page = controller.page.value;
+
+        if (page == null) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -49,9 +52,9 @@ class PartnerPolicyPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: controller.retryrefundPolicy,
-                  child: const Text(
-                    'Retry',
+                  onPressed: controller.retryPageContent(handle),
+                  child:  Text(
+                    'Retry'.tr,
                     style: TextStyle(color: whiteColor),
                   ),
                 ),
@@ -60,11 +63,11 @@ class PartnerPolicyPage extends StatelessWidget {
           );
         }
 
-        if (controller.refundPolicyList.value == null) {
-          return const Center(child: Text('Return Policy not found'));
+        if (controller.page.value == null) {
+          return  Center(child: Text('Return Policy not found'.tr));
         }
 
-        final policy = controller.refundPolicyList.value!;
+        final policy = controller.page.value!;
         return SingleChildScrollView(
           // padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(

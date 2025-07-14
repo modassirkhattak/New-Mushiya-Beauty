@@ -14,7 +14,7 @@ import 'package:svg_flutter/svg.dart';
 class WholeSalePage extends StatelessWidget {
   WholeSalePage({super.key});
   final WholeSaleController controller = Get.put(WholeSaleController());
-  final cartController = Get.put(CartController());
+  final cartController = Get.put(CartSaloonController());
 
   @override
   Widget build(BuildContext context) {

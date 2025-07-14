@@ -1175,6 +1175,7 @@ class ApiServices {
         Get.put(HomeController())
             .selectedVariant
             .value = null;
+
         Get.to(
           BestSellerDetails(
             id: ProdID["id"],
@@ -1191,6 +1192,42 @@ class ApiServices {
       throw 'Failed to fetch product: $e';
     }
   }
+
+  // pages call profile menu policy api call
+
+  // Future<ShopifyPageModel?> fetchPageContent() async {
+  //   final uri = Uri.parse("https://runwaycurls.myshopify.com/api/2025-04/graphql.json");
+  //   final headers = {
+  //     'Content-Type': 'application/json',
+  //     'X-Shopify-Storefront-Access-Token': STORE_TOKEN,
+  //   };
+  //
+  //   const query = '''
+  //   query {
+  //     page(handle: "return-policy") {
+  //       id
+  //       title
+  //       body
+  //     }
+  //   }
+  // ''';
+  //
+  //   final response = await http.post(uri, headers: headers, body: jsonEncode({'query': query}));
+  //
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body);
+  //     final pageJson = data['data']['page'];
+  //
+  //     if (pageJson != null) {
+  //       return ShopifyPageModel.fromJson(pageJson);
+  //     }
+  //   } else {
+  //     print("Error: ${response.statusCode} - ${response.reasonPhrase}");
+  //   }
+  //
+  //   return null;
+  // }
+
 }
 
 

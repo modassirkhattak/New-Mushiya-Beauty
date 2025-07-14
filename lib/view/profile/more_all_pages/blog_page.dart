@@ -17,7 +17,7 @@ class BlogPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: MyAppBarWidget(
-          title: "Blogs".toUpperCase(),
+          title: "Blogs".tr.toUpperCase(),
           titleImage: true,
           actions: true,
           actionsWidget:
@@ -33,7 +33,7 @@ class BlogPage extends StatelessWidget {
         } else if (controller.articles.isEmpty) {
           return Center(
             child: Text(
-              'No blogs found',
+              'No blogs found'.tr,
               style: TextStyle(color: Colors.red, fontFamily: "Roboto"),
             ),
           );

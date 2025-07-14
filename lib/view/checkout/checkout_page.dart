@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mushiya_beauty/controller/checkout_controller.dart';
@@ -18,7 +19,7 @@ class CheckoutPage extends StatelessWidget {
 
   final controller = Get.put(CheckoutController());
   final paymentController = Get.put(PaymentController());
-  final CartController cartController = Get.find<CartController>();
+  final CartSaloonController cartController = Get.find<CartSaloonController>();
 
   @override
   Widget build(BuildContext context) {
@@ -432,6 +433,7 @@ class CheckoutPage extends StatelessWidget {
                         isBorder: true,
                         textColor: whiteColor,
                         fillColor: Colors.transparent,
+                        keyboardType: TextInputType.number,
                         borderColor: whiteColor.withOpacity(0.3),
                       ),
                       CustomTextField(
@@ -440,6 +442,7 @@ class CheckoutPage extends StatelessWidget {
                         isBorder: true,
                         textColor: whiteColor,
                         fillColor: Colors.transparent,
+                        keyboardType: TextInputType.phone,
                         borderColor: whiteColor.withOpacity(0.3),
                       ),
                       CustomText(
@@ -479,7 +482,7 @@ class CheckoutPage extends StatelessWidget {
 
                       SizedBox(
                         width: double.infinity,
-                        height: 70 * 4,
+                        height: 70 * 2,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
@@ -561,15 +564,63 @@ class CheckoutPage extends StatelessWidget {
                       CustomButton(
                         text: "Pay now".toUpperCase(),
                         onPressed: () {
+                          if(FirebaseAuth.instance.currentUser == null){
+                            Get.snackbar(
+                              "Error",
+                              "Please login to continue.",
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+                          if (controller.nameController.text.isEmpty ||
+                              controller.address1Controller.text.isEmpty ||
+                              controller.countryController.text.isEmpty ||
+                              controller.cityController.text.isEmpty ||
+                              controller.stateController.text.isEmpty ||
+                              controller.pCodeController.text.isEmpty ||
+                              controller.phoneNoController.text.isEmpty) {
+                            Get.snackbar(
+                              "Missing Fields",
+                              "Please fill all required delivery information.",
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+
+                          if (controller.selectedPaymentMethod.value.isEmpty) {
+                            Get.snackbar(
+                              "Payment Method",
+                              "Please select a payment method.",
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+
+                          if (controller.phoneNoController.text.length < 7) {
+                            Get.snackbar(
+                              "Phone Number",
+                              "Please enter a valid phone number.",
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+
+                          /// Proceed to payment
                           print(controller.selectedPaymentMethod.value);
-                          if (controller.selectedPaymentMethod.value ==
-                              "Stripe") {
+
+                          if (controller.selectedPaymentMethod.value == "Stripe") {
                             paymentController.makePayment(
                               price: cartController.totalPrice.toString(),
                             );
-
+                          } else if (controller.selectedPaymentMethod.value == "PayPal") {
+                            Get.defaultDialog(title: "PayPal", content: Text("Coming soon"));
                           }
                         },
+
                         isPrefixIcon: false,
                         minWidth: double.infinity,
                         backgroundColor: whiteColor,

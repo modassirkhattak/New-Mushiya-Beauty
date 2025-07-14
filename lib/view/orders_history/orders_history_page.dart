@@ -10,10 +10,14 @@ import 'package:mushiya_beauty/widget/custom_appbar.dart';
 import 'package:mushiya_beauty/widget/custom_tabbar.dart';
 import 'package:mushiya_beauty/widget/custom_text.dart';
 
+import '../../controller/shopify_controller.dart';
+import 'order_details_page.dart';
+
 class OrderHistoryScreen extends StatelessWidget {
   OrderHistoryScreen({super.key});
 
   final controller = Get.put(OrderHistoryController());
+  final shopifyController = Get.put(ShopifyOrderController());
 
   @override
   Widget build(BuildContext context) {
@@ -186,171 +190,127 @@ class OrderHistoryScreen extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 if (controller.mainTab == 0) {
-                  return Obx(() {
-                    if (controller.isLoading.value) {
-                      return Center(
-                        child: CircularProgressIndicator(color: whiteColor),
-                      );
-                    }
-                    if (controller.errorMessage.value.isNotEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(controller.errorMessage.value),
-                            ElevatedButton(
-                              onPressed: controller.retryFetchOrders,
-                              child: Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    if (controller.orders.isEmpty) {
-                      return Center(child: Text('No orders found'));
-                    }
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: controller.ordersModel.length,
-                      itemBuilder: (context, index) {
-                        final order = controller.ordersModel[index];
-                        return Container(
-                          // elevation: 0,
-                          padding: EdgeInsets.only(bottom: 12, top: 12),
-                          decoration: BoxDecoration(
-                            // color: primaryBlackColor,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: whiteColor.withOpacity(0.6),
-                                width: 0.2,
-                              ),
-                            ),
-                          ),
+                    return Obx(() {
+                      if (shopifyController.isLoading.value) {
+                        return Center(child: CircularProgressIndicator(color: whiteColor,));
+                      }
 
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // ClipRRect(
-                              //   borderRadius: BorderRadius.circular(10),
-                              //   child: Image.asset(
-                              //     order.lineItems[index].price,
-                              //     width: 81,
-                              //     height: 81,
-                              //     fit: BoxFit.cover,
-                              //   ),
-                              // ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  spacing: 1,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                      if (shopifyController.orders.isEmpty) {
+                        return Center(child: Text("No orders found.", style: TextStyle(
+                          fontFamily: "Roboto",
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),),);
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: shopifyController.orders.length,
+                        itemBuilder: (context, index) {
+                          final order = shopifyController.orders[index];
+                          return Container(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.6), width: 0.2)),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image.network(
+                                          order.lineItems.lineItemOrderList.first.variant!.image.toString(),
+                                          width: 81,
+                                          height: 81,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Text(
+                                        order.name,
+                                        style: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Total: \$${order.totalPriceV2}',
+                                        style: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${order.lineItems.lineItemOrderList.length} items",
+                                        style: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.80),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Order Date: ${DateFormat('yyyy-MM-dd, hh:mm a').format(DateTime.parse(order.canceledAt.toString()))}',
+                                        style: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 12,
+                                          color: Colors.white.withOpacity(0.80),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    CustomText(
-                                      text: order.lineItems[0].name,
-                                      // style: Goo(
-                                      fontFamily: "Roboto",
-                                      fontSize: 14,
-                                      maxLines: 2,
-                                      color: whiteColor,
-                                      fontWeight: FontWeight.w500,
-                                      // ),
+                                    Text(
+                                      "Order ID: ${order.name}",
+                                      style: TextStyle(
+                                        fontFamily: "Roboto",
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                    // CustomText(
-                                    //   text: 'Deposit: \$400',
-                                    //   // style: Goo(
-                                    //   fontFamily: "Roboto",
-                                    //   fontSize: 14,
-                                    //   color: whiteColor,
-                                    //   fontWeight: FontWeight.w500,
-                                    //   // ),
-                                    // ),
-                                    CustomText(
-                                      text:
-                                          'Total: \$' +
-                                          order.currentSubtotalPrice,
-                                      // style: Goo(
-                                      fontFamily: "Roboto",
-                                      fontSize: 14,
-                                      color: whiteColor,
-                                      fontWeight: FontWeight.w500,
-                                      // ),
-                                    ),
-                                    CustomText(
-                                      text:
-                                          "${order.lineItems.map((e) => e.quantity).reduce((value, element) => value + element).toString()} items",
-                                      // style: Goo(
-                                      fontFamily: "Roboto",
-                                      fontSize: 12,
-                                      color: whiteColor.withOpacity(0.80),
-                                      fontWeight: FontWeight.w400,
-                                      // ),
-                                    ),
-                                    CustomText(
-                                      // ignore: prefer_interpolation_to_compose_strings
-                                      text: 'Order Date ' + order.createdAt,
-                                      // style: Goo(
-                                      fontFamily: "Roboto",
-                                      fontSize: 12,
-                                      color: whiteColor.withOpacity(0.80),
-                                      fontWeight: FontWeight.w400,
-                                      // ),
+                                    SizedBox(height: 8),
+                                    GestureDetector(
+                                      onTap: () => Get.to(OrderDetailsPage(title: order.name,order: order,)),
+                                      child: Text(
+                                        'View details',
+                                        style: TextStyle(
+                                          fontFamily: "Roboto",
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                          decoration: TextDecoration.underline,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    });
 
-                              Column(
-                                spacing: 19,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  CustomText(
-                                    text:
-                                        "Order ID " +
-                                        "" +
-                                        order.name.toString(),
-                                    // style: Goo(
-                                    fontFamily: "Roboto",
-                                    fontSize: 14,
-                                    color: whiteColor,
-                                    fontWeight: FontWeight.w500,
-                                    // ),
-                                  ),
-                                  GestureDetector(
-                                    onTap:
-                                        () => controller.viewDetails(
-                                          order,
-                                          tag: order.tags,
-                                        ),
-                                    child: CustomText(
-                                      text: 'View details',
-                                      // style: Goo(
-                                      fontFamily: "Roboto",
-                                      fontSize: 12,
-                                      color: whiteColor,
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.w400,
-                                      // ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  });
                 } else if (controller.mainTab == 1) {
                   return StreamBuilder(
-                    stream:
-                        FirebaseFirestore.instance
-                            .collection("BookedEvents")
-                            .where(
-                              'booked_by',
-                              isEqualTo: FirebaseAuth.instance.currentUser!.uid,
-                            )
-                            .snapshots(),
+                    stream: FirebaseFirestore.instance
+                        .collection("ServiceBook")
+                        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
@@ -359,32 +319,35 @@ class OrderHistoryScreen extends StatelessWidget {
                         return Text('Error: ${snapshot.error}');
                       }
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return Center(child: Text('No evennts found'));
+                        return Center(child: Text('No events found'));
                       }
+
                       return ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: controller.orders.length,
+                        itemCount: snapshot.data!.docs.length,
                         itemBuilder: (context, index) {
-                          final order = controller.orders[index];
+                          final doc = snapshot.data!.docs[index];
+                          final List<dynamic> items = doc['items'];
+
+                          if (items.isEmpty) {
+                            return SizedBox(); // Skip if no items
+                          }
+
+                          final order = items[0]; // First item access
+
                           return Container(
-                            // elevation: 0,
                             padding: EdgeInsets.only(bottom: 12, top: 12),
                             decoration: BoxDecoration(
-                              // color: primaryBlackColor,
                               border: Border(
-                                bottom: BorderSide(
-                                  color: whiteColor.withOpacity(0.6),
-                                  width: 0.2,
-                                ),
+                                bottom: BorderSide(color: whiteColor.withOpacity(0.6), width: 0.2),
                               ),
                             ),
-
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
-                                  child: Image.asset(
+                                  child: Image.network(
                                     order['image'],
                                     width: 81,
                                     height: 81,
@@ -393,82 +356,53 @@ class OrderHistoryScreen extends StatelessWidget {
                                 ),
                                 SizedBox(width: 16),
                                 Column(
-                                  spacing: 1,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     CustomText(
                                       text: order['name'],
-                                      // style: Goo(
                                       fontFamily: "Roboto",
                                       fontSize: 14,
                                       color: whiteColor,
                                       fontWeight: FontWeight.w500,
-                                      // ),
                                     ),
                                     CustomText(
-                                      text: 'Deposit: \$400',
-                                      // style: Goo(
+                                      text: "",
                                       fontFamily: "Roboto",
                                       fontSize: 14,
                                       color: whiteColor,
                                       fontWeight: FontWeight.w500,
-                                      // ),
                                     ),
                                     CustomText(
-                                      text: "Price: " + order['price'],
-                                      // style: Goo(
+                                      text: "Price: \$${order['price']}",
                                       fontFamily: "Roboto",
                                       fontSize: 14,
                                       color: whiteColor,
                                       fontWeight: FontWeight.w500,
-                                      // ),
                                     ),
-                                    // CustomText(
-                                    //   text: "3 items",
-                                    //   // style: Goo(
-                                    //   fontFamily: "Roboto",
-                                    //   fontSize: 12,
-                                    //   color: whiteColor.withOpacity(0.80),
-                                    //   fontWeight: FontWeight.w400,
-                                    //   // ),
-                                    // ),
                                     CustomText(
-                                      // ignore: prefer_interpolation_to_compose_strings
-                                      text: 'Order Date ' + order['date'],
-                                      // style: Goo(
+                                      text: "Order Date: ${order['timeSlot']}",
                                       fontFamily: "Roboto",
                                       fontSize: 12,
                                       color: whiteColor.withOpacity(0.80),
                                       fontWeight: FontWeight.w400,
-                                      // ),
                                     ),
                                   ],
                                 ),
                                 Spacer(),
                                 Column(
-                                  spacing: 19,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    // CustomText(
-                                    //   text: "Order ID " + "#" + order['id'],
-                                    //   // style: Goo(
-                                    //   fontFamily: "Roboto",
-                                    //   fontSize: 14,
-                                    //   color: whiteColor,
-                                    //   fontWeight: FontWeight.w500,
-                                    //   // ),
-                                    // ),
                                     GestureDetector(
-                                      // onTap: () => controller.viewDetails(order),
+                                      onTap: () {
+                                        // Controller logic yahan lagao agar details dekhni hain
+                                      },
                                       child: CustomText(
                                         text: 'View details',
-                                        // style: Goo(
                                         fontFamily: "Roboto",
                                         fontSize: 12,
                                         color: whiteColor,
                                         decoration: TextDecoration.underline,
                                         fontWeight: FontWeight.w400,
-                                        // ),
                                       ),
                                     ),
                                   ],
@@ -480,6 +414,7 @@ class OrderHistoryScreen extends StatelessWidget {
                       );
                     },
                   );
+
                 } else if (controller.mainTab == 2) {
                   return Obx(() {
                     if (controller.bookedEvents.isEmpty) {

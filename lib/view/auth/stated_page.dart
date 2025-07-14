@@ -47,7 +47,7 @@ class StatedPage extends StatelessWidget {
                 children: [
                   Center(
                     child: CustomText(
-                      text: "GET STARTED",
+                      text: "GET STARTED".tr,
                       fontSize: 22,
                       fontFamily: 'Archivo',
                       color: primaryBlackColor,
@@ -56,7 +56,7 @@ class StatedPage extends StatelessWidget {
                   ),
                   CustomButton(
                     height: 48,
-                    text: "Continue with Google",
+                    text: "Continue with Google".tr,
                     isPrefixIcon: true,
                     onPressed: () {
                       controller.signInWithGoogle();
@@ -74,7 +74,7 @@ class StatedPage extends StatelessWidget {
                   ),
                   CustomButton(
                     height: 48,
-                    text: "Continue with Email",
+                    text: "Continue with Email".tr,
                     isPrefixIcon: true,
                     onPressed: () {
                       Get.to(LoginPage());
@@ -83,7 +83,7 @@ class StatedPage extends StatelessWidget {
                       children: [
                         SvgPicture.asset('assets/icons_svg/email.svg'),
                         Spacer(),
-                        CustomText(text: "Continue with Email"),
+                        CustomText(text: "Continue with Email".tr),
                         Spacer(),
                       ],
                     ),
@@ -91,7 +91,7 @@ class StatedPage extends StatelessWidget {
                     minWidth: double.infinity,
                   ),
                   CustomButton(
-                    text: "SIGNUP",
+                    text: "SIGNUP".tr,
                     onPressed: () {
                       Get.to(SignUpPage());
                     },
@@ -105,7 +105,7 @@ class StatedPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomText(
-                        text: "Already have an account?",
+                        text: "Already have an account?".tr,
                         fontFamily: 'Archivo',
                         fontWeight: FontWeight.w500,
                       ),
@@ -114,7 +114,7 @@ class StatedPage extends StatelessWidget {
                           Get.to(LoginPage());
                         },
                         child: CustomText(
-                          text: " LOGIN",
+                          text: " LOGIN".tr,
                           fontFamily: 'Archivo',
                           fontWeight: FontWeight.w600,
                         ),

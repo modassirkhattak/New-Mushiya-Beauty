@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,6 +34,7 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    getFirebaseCollection();
 
     // Optionally call fetchCustomer() with a real ID
     // fetchCustomer(ApiServices.customerId);
@@ -79,4 +81,31 @@ class ProfileController extends GetxController {
 
     isUpdteCustomerLoading.value = false;
   }
+
+
+  // Future<void> updateCustomer() async {
+
+  final RxString podCastUrl = ''.obs;
+  final RxString mediaPressUrl = ''.obs;
+  final RxString brandUrl = ''.obs;
+  final RxString theNonProfiftUrl = ''.obs;
+  final RxBool isProfileLoading = false.obs;
+  void getFirebaseCollection() {
+    isProfileLoading.value = true;
+
+    FirebaseFirestore.instance
+        .collection('HomePageData')
+        .doc("ProfileData")
+        .snapshots()
+        .listen((snapshot) {
+      brandUrl.value = snapshot['TheBrand'];
+      podCastUrl.value = snapshot['Podcast'];
+      mediaPressUrl.value = snapshot['MediaPressLink'];
+      theNonProfiftUrl.value = snapshot['TheNonProfift'];
+
+      // ✅ Set loading to false once data is received
+      isProfileLoading.value = false;
+    });
+  }
+
 }

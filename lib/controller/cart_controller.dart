@@ -48,7 +48,7 @@ class CartItem {
   }
 }
 
-class CartController extends GetxController {
+class CartSaloonController extends GetxController {
   var cartItems = <CartItem>[].obs;
 
   void addToCart(CartItem item) {

@@ -35,6 +35,7 @@ class MyAppBarWidget extends StatelessWidget {
               ? IconButton(
                 onPressed: () {
                   Get.back();
+
                 },
                 icon: const Icon(Icons.arrow_back),
               )
@@ -49,7 +50,7 @@ class MyAppBarWidget extends StatelessWidget {
           titleImage == true
               ? CustomText(
                 text: title.toString(),
-                fontSize: 24,
+                fontSize: 16,
                 fontFamily: 'Archivo',
                 color: whiteColor,
                 fontWeight: FontWeight.w600,
@@ -78,11 +79,14 @@ class MyAppBarWidget extends StatelessWidget {
                   onTap: () {
                     Get.to(() => const NotificationPage());
                   },
-                  child: SvgPicture.asset(
-                    'assets/icons_svg/notification.svg',
-                    color: whiteColor,
-                    height: 24,
-                    width: 24,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: SvgPicture.asset(
+                      'assets/icons_svg/notification.svg',
+                      color: whiteColor,
+                      height: 22,
+                      width: 20,
+                    ),
                   ),
                 ),
               ],

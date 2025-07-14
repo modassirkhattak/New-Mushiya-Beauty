@@ -96,7 +96,7 @@ class EditProfilePage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: MyAppBarWidget(
-          title: "Edit profile".toUpperCase(),
+          title: "Edit profile".tr.toUpperCase(),
           titleImage: true,
           actions: true,
           actionsWidget: null,
@@ -127,7 +127,7 @@ class EditProfilePage extends StatelessWidget {
                           children: [
                             ListTile(
                               leading: Icon(Icons.camera_alt),
-                              title: Text("Camera"),
+                              title: Text("Camera".tr),
                               onTap: () {
                                 controller.pickImage(ImageSource.camera);
                                 Get.back();
@@ -135,7 +135,7 @@ class EditProfilePage extends StatelessWidget {
                             ),
                             ListTile(
                               leading: Icon(Icons.photo),
-                              title: Text("Gallery"),
+                              title: Text("Gallery".tr),
                               onTap: () {
                                 controller.pickImage(ImageSource.gallery);
                                 Get.back();
@@ -175,7 +175,7 @@ class EditProfilePage extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 CustomTextField(
-                  hintText: "Name",
+                  hintText: "Name".tr,
                   textColor: whiteColor,
                   textEditingController: controller.nameController,
                   // textEditingController: controller.nameController,
@@ -189,7 +189,7 @@ class EditProfilePage extends StatelessWidget {
                 ),
                 SizedBox(height: 32),
                 CustomButton(
-                  text: "Save ".toUpperCase(),
+                  text: "Save".tr.toUpperCase(),
                   onPressed: () {
                     controller.updateCustomer(
                       cID: controller.customer.value!.id,

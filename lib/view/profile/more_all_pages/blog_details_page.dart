@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 // import 'package:mushiya_beauty/controller/blog_controllers.dart';
 import 'package:mushiya_beauty/model/article_model.dart';
@@ -26,7 +27,7 @@ class BlogDetailsPage extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: MyAppBarWidget(
-            title: "Blog details".toUpperCase(),
+            title: "Blog details".tr.toUpperCase(),
             titleImage: true,
             actions: true,
             actionsWidget:

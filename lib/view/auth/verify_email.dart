@@ -48,7 +48,7 @@ class VerifyEmailPage extends StatelessWidget {
                   children: [
                     Center(
                       child: CustomText(
-                        text: "Verify email".toUpperCase(),
+                        text: "Verify email".tr.toUpperCase(),
                         fontSize: 22,
                         fontFamily: 'Archivo',
                         color: primaryBlackColor,
@@ -59,7 +59,7 @@ class VerifyEmailPage extends StatelessWidget {
                     Center(
                       child: CustomText(
                         text:
-                            "Enter the 6 digit code we have sent to ${Get.put(SignUpProvider()).emailController.text}",
+                            "${'Enter the 6 digit code we have sent to'.tr} ${Get.put(SignUpProvider()).emailController.text}",
                         fontSize: 16,
                         maxLines: 2,
                         textAlign: TextAlign.center,
@@ -110,14 +110,14 @@ class VerifyEmailPage extends StatelessWidget {
                         () =>
                             controller.onClick.value == true &&
                                     controller.verifyPinController.text == ""
-                                ? const Text(
-                                  "Enter the code.",
+                                ?  Text(
+                                  "Enter the code.".tr,
                                   style: TextStyle(color: Colors.red),
                                 )
                                 : controller.onClick.value == true &&
                                     controller.verifyPinController.length != 6
-                                ? const Text(
-                                  "The code must be of 6 digits.",
+                                ?  Text(
+                                  "The code must be of 6 digits.".tr,
                                   style: TextStyle(color: Colors.red),
                                 )
                                 : const SizedBox(),
@@ -125,7 +125,7 @@ class VerifyEmailPage extends StatelessWidget {
                     ),
                     SizedBox(height: 24),
                     CustomButton(
-                      text: "Verify".toUpperCase(),
+                      text: "Verify".tr.toUpperCase(),
                       onPressed: () async {
                         controller.onClick.value = !controller.onClick.value;
                         if (controller.verifyPinController.length != 6 ||
@@ -185,7 +185,7 @@ class VerifyEmailPage extends StatelessWidget {
 
                     Center(
                       child: CustomText(
-                        text: "Didn't receive the code?",
+                        text: "Didn't receive the code?".tr,
                         fontSize: 14,
                         fontFamily: 'Roboto',
                         color: primaryBlackColor,
@@ -201,7 +201,7 @@ class VerifyEmailPage extends StatelessWidget {
                       },
                       child: Center(
                         child: CustomText(
-                          text: "Resend Code",
+                          text: "Resend Code".tr,
                           fontSize: 16,
                           fontFamily: 'Roboto',
                           color: primaryBlackColor,

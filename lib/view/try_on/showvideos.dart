@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:mushiya_beauty/view/try_on/main.dart';
+import 'package:mushiya_beauty/main.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 

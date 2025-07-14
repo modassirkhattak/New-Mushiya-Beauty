@@ -4,10 +4,11 @@ import 'package:mushiya_beauty/model/order_model.dart';
 import 'package:mushiya_beauty/utills/app_colors.dart';
 import 'package:mushiya_beauty/widget/custom_appbar.dart';
 import 'package:mushiya_beauty/widget/custom_text.dart';
+import 'package:shopify_flutter/models/models.dart';
 
 class OrderDetailsPage extends StatelessWidget {
   //  OrderDetailsPage({super.key});
-  final OrderModel order;
+  final Order order;
   final String title;
 
   const OrderDetailsPage({super.key, required this.order, required this.title});
@@ -33,11 +34,11 @@ class OrderDetailsPage extends StatelessWidget {
           children: [
             Expanded(
               child: ListView.builder(
-                itemCount: order.lineItems.length,
+                itemCount: order.lineItems.lineItemOrderList!.length,
                 shrinkWrap: true,
                 // padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                 itemBuilder: (context, index) {
-                  final lineItems = order.lineItems[index];
+                  final lineItems = order.lineItems!.lineItemOrderList![index];
                   return Container(
                     margin: EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
@@ -59,15 +60,16 @@ class OrderDetailsPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CustomText(
-                              text: "${lineItems.name}",
+                              text: "${lineItems.title}",
                               fontSize: 14,
                               fontFamily: "Roboto",
                               fontWeight: FontWeight.w500,
                             ),
                             CustomText(
                               text:
-                                  "${lineItems.price} x ${lineItems.quantity} = \$${lineItems.preTaxPrice}",
+                                  "${lineItems.originalTotalPrice} x ${lineItems.quantity} = \$${lineItems.discountedTotalPrice}",
                               fontSize: 18,
+
                               fontFamily: "Archivo",
                               fontWeight: FontWeight.w600,
                             ),
@@ -121,14 +123,14 @@ class OrderDetailsPage extends StatelessWidget {
                       children: [
                         CustomText(
                           text:
-                              "Sub total (${"${order.lineItems.map((e) => e.quantity).reduce((value, element) => value + element).toString()}"} items)",
+                              "Sub total (${"${order.subtotalPriceV2}"} items)",
                           fontSize: 12,
                           fontFamily: "Roboto",
                           color: primaryBlackColor.withOpacity(0.60),
                           fontWeight: FontWeight.w400,
                         ),
                         CustomText(
-                          text: "\$${order.currentSubtotalPrice}",
+                          text: "\$${order.totalPriceV2}",
                           fontSize: 12,
                           fontFamily: "Roboto",
                           color: primaryBlackColor,
@@ -157,26 +159,26 @@ class OrderDetailsPage extends StatelessWidget {
                     //   ],
                     // ),
                     // Divider(color: primaryBlackColor, thickness: 0.5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomText(
-                          text: "Discount",
-                          fontSize: 12,
-                          fontFamily: "Roboto",
-                          color: primaryBlackColor.withOpacity(0.60),
-                          fontWeight: FontWeight.w400,
-                        ),
-                        CustomText(
-                          text:
-                              "\$${order.currentTotalDiscounts}", // order.currentTotalDiscounts,
-                          fontSize: 12,
-                          fontFamily: "Roboto",
-                          color: primaryBlackColor,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //   children: [
+                    //     CustomText(
+                    //       text: "Discount",
+                    //       fontSize: 12,
+                    //       fontFamily: "Roboto",
+                    //       color: primaryBlackColor.withOpacity(0.60),
+                    //       fontWeight: FontWeight.w400,
+                    //     ),
+                    //     CustomText(
+                    //       text:
+                    //           "\$${order.}", // order.currentTotalDiscounts,
+                    //       fontSize: 12,
+                    //       fontFamily: "Roboto",
+                    //       color: primaryBlackColor,
+                    //       fontWeight: FontWeight.w400,
+                    //     ),
+                    //   ],
+                    // ),
                     Divider(color: primaryBlackColor, thickness: 0.5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,7 +191,7 @@ class OrderDetailsPage extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                         ),
                         CustomText(
-                          text: order.currentTotalDiscounts,
+                          text: order.totalTaxV2.toString(),
                           fontSize: 12,
                           fontFamily: "Roboto",
                           color: primaryBlackColor,
@@ -202,14 +204,14 @@ class OrderDetailsPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CustomText(
-                          text: "Total (${order.lineItems.length} items)",
+                          text: "Total (${order.lineItems.lineItemOrderList.length} items)",
                           fontSize: 14,
                           fontFamily: "Roboto",
                           color: primaryBlackColor.withOpacity(0.60),
                           fontWeight: FontWeight.w500,
                         ),
                         CustomText(
-                          text: "\$${order.currentTotalPrice}",
+                          text: "\$${order.totalTaxV2}",
                           fontSize: 12,
                           fontFamily: "Roboto",
                           color: primaryBlackColor,
@@ -229,7 +231,7 @@ class OrderDetailsPage extends StatelessWidget {
                           fontWeight: FontWeight.w400,
                         ),
                         CustomText(
-                          text: "${order.paymentGatewayNames.first}",
+                          text: "${order.financialStatus}",
                           fontSize: 12,
                           fontFamily: "Roboto",
                           color: primaryBlackColor,
@@ -251,8 +253,9 @@ class OrderDetailsPage extends StatelessWidget {
                         CustomText(
                           text:
                               DateFormat('dd/MM/yyyy')
-                                  .format(DateTime.parse(order.createdAt))
+                                  .format(DateTime.parse(order.fulfillmentStatus))
                                   .toString(),
+
                           fontSize: 12,
                           fontFamily: "Roboto",
                           color: primaryBlackColor,

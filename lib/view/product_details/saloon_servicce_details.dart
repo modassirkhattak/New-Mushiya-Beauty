@@ -19,6 +19,7 @@ import 'package:mushiya_beauty/widget/custom_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:svg_flutter/svg.dart';
 
+import '../../controller/policy_controller.dart';
 import '../../controller/product_details_controller.dart';
 
 import 'dart:developer';
@@ -32,6 +33,7 @@ import 'package:shopify_flutter/shopify_flutter.dart';
 
 import '../../model/teeth_service_model.dart';
 import '../../new_app/screens/cart_tab.dart';
+import '../../utills/api_controller.dart';
 
 class SaloonServiceDetails extends StatefulWidget {
   SaloonServiceDetails({
@@ -597,11 +599,22 @@ class _SaloonServiceDetailsState extends State<SaloonServiceDetails> {
                 ),
                 const SizedBox(height: 16),
                 CustomTabWidget(
-                  children: [
-                    Tab(text: 'Description'),
-                    Tab(text: 'Shipping policy'),
-                    Tab(text: 'Return policy'),
-                  ],
+                    children: [
+                      Tab(text: 'Description'),
+                      Tab(text: 'Shipping policy'),
+                      Tab(text: 'Return policy'),
+
+                    ],
+                    onTap: (value) {
+                      print(value);
+                      if(value == 0){
+
+
+                      } else if(value == 1){
+                        Get.put(PolicyController()).fetchPageContent(SHIPPING_POLICY);
+                      } else if(value == 2){
+                        Get.put(PolicyController()).fetchPageContent(RETURN_POLICY);
+                      }}
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.30,
@@ -614,12 +627,14 @@ class _SaloonServiceDetailsState extends State<SaloonServiceDetails> {
                       ),
                       TheShoppingPolicyPage(
                         isPage: false,
+                        handle: SHIPPING_POLICY,
                         // homeModel: homeModel,
                         // title: "Shipping policy",
                         // description: "adsadas",
                       ),
                       PartnerPolicyPage(
                         isPage: false,
+                        handle:   RETURN_POLICY,
                         // homeModel: homeModel,
                         // title: "Return policy",
                         // description: "jksdjksa",

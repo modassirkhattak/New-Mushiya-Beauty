@@ -52,7 +52,7 @@ class LoginPage extends StatelessWidget {
                         children: [
                           Center(
                             child: CustomText(
-                              text: "Welcome back".toUpperCase(),
+                              text: "Welcome back".toUpperCase().tr,
                               fontSize: 22,
                               fontFamily: 'Archivo',
                               color: primaryBlackColor,
@@ -65,16 +65,16 @@ class LoginPage extends StatelessWidget {
                           CustomTextField(
                             keyboardType: TextInputType.emailAddress,
                             height: 48,
-                            hintText: 'Email',
+                            hintText: 'Email'.tr,
                             textEditingController: authService.emailController,
                             fillColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             isBorder: true,
                             onValidate: (val) {
                               if (val == null || val.isEmpty)
-                                return 'Email required';
+                                return 'Email required'.tr;
                               if (!GetUtils.isEmail(val))
-                                return 'Enter valid email';
+                                return 'Enter valid email'.tr;
                               return null;
                             },
                           ),
@@ -83,7 +83,7 @@ class LoginPage extends StatelessWidget {
                             () => CustomTextField(
                               keyboardType: TextInputType.visiblePassword,
                               height: 48,
-                              hintText: 'Password',
+                              hintText: 'Password'.tr,
                               textEditingController:
                                   authService.passwordController,
                               fillColor: Colors.transparent,
@@ -106,9 +106,9 @@ class LoginPage extends StatelessWidget {
                               ),
                               onValidate: (val) {
                                 if (val == null || val.isEmpty)
-                                  return 'Password required';
+                                  return 'Password required'.tr;
                                 if (val.length < 6)
-                                  return 'Minimum 6 characters';
+                                  return 'Minimum 6 characters'.tr;
                                 return null;
                               },
                             ),
@@ -121,7 +121,7 @@ class LoginPage extends StatelessWidget {
                             child: Align(
                               alignment: Alignment.centerRight,
                               child: CustomText(
-                                text: "Forgot Password?",
+                                text: "Forgot Password?".tr,
                                 fontSize: 16,
                                 fontFamily: 'Roboto',
                                 color: primaryBlackColor,
@@ -132,7 +132,7 @@ class LoginPage extends StatelessWidget {
 
                           SizedBox(height: 24),
                           CustomButton(
-                            text: "LOGIN",
+                            text: "LOGIN".tr,
                             onPressed: () async {
                               if (authService.formKey.currentState!
                                   .validate()) {
@@ -174,7 +174,7 @@ class LoginPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CustomText(
-                        text: "Don’t have account? ",
+                        text: "Don’t have account? ".tr,
                         fontFamily: 'Roboto',
                         fontWeight: FontWeight.w500,
                       ),
@@ -183,7 +183,7 @@ class LoginPage extends StatelessWidget {
                           Get.to(SignUpPage());
                         },
                         child: CustomText(
-                          text: "Signup".toUpperCase(),
+                          text: "Signup".tr.toUpperCase(),
                           fontFamily: 'Roboto',
                           fontWeight: FontWeight.w700,
                         ),

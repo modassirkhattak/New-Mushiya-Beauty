@@ -91,7 +91,7 @@ dependencies:
   share_plus: ^7.2.2 # Use the latest version
   deepar_flutter_plus: ^0.2.0
 #  deepar_flutter_plus: ^0.2.0
-  deepar_shoe_try_on_flutter: ^1.0.2-beta
+#  deepar_shoe_try_on_flutter: ^1.0.2-beta
   model_viewer_plus: ^1.4.0
   #  deepar_flutter: ^0.0.5
   open_file: ^3.2.1
@@ -149,7 +149,6 @@ flutter:
     - assets/extra_images/
     - assets/icons_svg/
     - assets/language/
-    - assets/glasses/
     - assets/
 #    - assets/filters/
 #    - assets/previews/

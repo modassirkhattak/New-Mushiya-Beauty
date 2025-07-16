@@ -145,134 +145,212 @@ Widget _buildNewMenu(MenuModel menu) {
   );
 }
 
-Widget _buildMenuItem(MenuItem item, {int level = 0}) {
+Widget _buildMenuItem(MenuItem item, {int level = 0, String? parentId}) {
   final SideMenuController _controller = Get.put(SideMenuController());
-  return GestureDetector(
-    onTap: () {
-      if (item.type == "PRODUCT") {
-        String url = item.url;
-        String lastSegment = url.split('/').last;
-        print('lastSegment: $lastSegment');
-        ApiServices().fetchProductByHandle(lastSegment);
-      } else {
-        print('collectionId: ${item.url}');
-        String url = item.url;
-        String lastSegment = url.split('/').last;
-        print('lastSegment: $lastSegment');
-        _controller.fetchInitialProducts(collectionId: lastSegment);
-        Get.to(() => ShopifyProductGrid(id: lastSegment, title: item.title));
-      }
-    },
-    child: Padding(
-      padding: EdgeInsets.only(left: level * 8.0, right: 8, top: 4),
-      child: Card(
-        color: primaryBlackColor,
-        shape: RoundedRectangleBorder(
+
+  final bool hasChildren = item.items.isNotEmpty;
+  final bool isSelfReferencing = item.id == parentId;
+
+  if (isSelfReferencing) return const SizedBox.shrink();
+
+  return Padding(
+    padding: EdgeInsets.only(left: level * 8.0, right: 8, top: 4),
+    child: Card(
+      color: primaryBlackColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: hasChildren
+          ? ExpansionTile(
+        iconColor: whiteColor,
+        maintainState: true,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+        shape: const BeveledRectangleBorder(
           borderRadius: BorderRadius.only(
-            topRight: Radius.circular(12),
-            bottomRight: Radius.circular(12),
+            topRight: Radius.circular(10),
+            bottomRight: Radius.circular(10),
           ),
         ),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        child: ExpansionTile(
-          iconColor: whiteColor,
-          // minTileHeight: 55,
-          dense: true,
-          internalAddSemanticForOnTap: true,
-          controller: ExpansionTileController(),
-          clipBehavior: Clip.antiAlias,
-          maintainState: true,
-          shape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(10),
-              bottomRight: Radius.circular(10),
-            ),
+        title: CustomText(
+          text: item.title,
+          fontSize: 12,
+          fontFamily: 'Roboto',
+          color: whiteColor,
+          fontWeight: FontWeight.w500,
+          maxLines: 1,
+        ),
+        children: item.items
+            .where((child) => child.id != item.id) // avoid self loop
+            .map((child) => _buildMenuItem(child, level: level + 1, parentId: item.id))
+            .toList(),
+      )
+          : ListTile(
+        onTap: () {
+          if (item.type == "PRODUCT") {
+            final lastSegment = item.url.split('/').last;
+            // ApiServices().fetchProductByHandle(lastSegment);
+            _controller.refreshProductsCollect(collectionId: lastSegment, isProduct: true);
+          } else {
+            final lastSegment = item.url.split('/').last;
+            // _controller.fetchIn/itialProducts(collectionId: lastSegment);
+            _controller.refreshProducts(collectionId: lastSegment, isProduct: false);
+            // Get.to(() => ShopifyProductGrid(id: lastSegment, title: item.title));
+          }
+        },
+        dense: true,
+        visualDensity: const VisualDensity(vertical: -3),
+        title: CustomText(
+          text: item.title,
+          fontSize: 12,
+          fontFamily: 'Roboto',
+          color: whiteColor,
+          fontWeight: FontWeight.w500,
+          maxLines: 1,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        shape: const BeveledRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(10),
+            bottomRight: Radius.circular(10),
           ),
-          tilePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-          collapsedShape: BeveledRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(10),
-              bottomRight: Radius.circular(10),
-            ),
-          ),
-
-          // tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-          title: CustomText(
-            text: item.title,
-            fontSize: 12,
-            fontFamily: 'Roboto',
-            color: whiteColor,
-            fontWeight: FontWeight.w500,
-            maxLines: 1,
-          ),
-          // subtitle: Text('${item.type} - ${item.url}'),
-          children: [
-            if (item.items.isNotEmpty)
-              ...item.items.map(
-                (child) => _buildMenuItem(child, level: level + 1),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Container(
-                  margin: EdgeInsets.only(left: 0.0),
-                  decoration: BoxDecoration(
-                    color: primaryBlackColor,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                    // border: Border(
-                    //   bottom: BorderSide(color: Colors.grey, width: 0.5),
-                    // ),
-                  ),
-
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 5,
-                    ),
-                    child: Row(
-                      spacing: 12,
-                      children: [
-                        // Image.asset(
-                        //   'assets/extra_images/teeth_1.png',
-                        //   width: 24,
-                        //   height: 24,
-                        // ),
-                        CustomText(
-                          text: item.title,
-                          fontSize: 12,
-                          fontFamily: 'Roboto',
-                          color: whiteColor,
-                          fontWeight: FontWeight.w500,
-                          maxLines: 2,
-                        ),
-                        // Spacer(),
-                        // Icon(icon ?? Icons.add, color: whiteColor, size: 24),
-                      ],
-                    ),
-                  ),
-                ),
-                // child: ListTile(
-                //   minVerticalPadding: 0,
-                //   contentPadding: EdgeInsets.zero,
-                //   title: const Text('Open'),
-                //   subtitle: Text(item.url),
-                //   trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                //   onTap: () {
-                //     // Open link or navigate
-                //     // Example:
-                //     // launchUrl(Uri.parse("https://yourdomain.com${item.url}"));
-                //   },
-                // ),
-              ),
-          ],
         ),
       ),
     ),
   );
 }
+
+// Widget _buildMenuItem(MenuItem item, {int level = 0}) {
+//   final SideMenuController _controller = Get.put(SideMenuController());
+//   return GestureDetector(
+//     onTap: () {
+//       if (item.type == "PRODUCT") {
+//         String url = item.url;
+//         String lastSegment = url.split('/').last;
+//         print('lastSegment: $lastSegment');
+//         ApiServices().fetchProductByHandle(lastSegment);
+//       } else {
+//         print('collectionId: ${item.url}');
+//         String url = item.url;
+//         String lastSegment = url.split('/').last;
+//         print('lastSegment: $lastSegment');
+//         _controller.fetchInitialProducts(collectionId: lastSegment);
+//         Get.to(() => ShopifyProductGrid(id: lastSegment, title: item.title));
+//       }
+//     },
+//     child: Padding(
+//       padding: EdgeInsets.only(left: level * 8.0, right: 8, top: 4),
+//       child: Card(
+//         color: primaryBlackColor,
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.only(
+//             topRight: Radius.circular(12),
+//             bottomRight: Radius.circular(12),
+//           ),
+//         ),
+//         margin: const EdgeInsets.symmetric(vertical: 4),
+//         child: ExpansionTile(
+//           iconColor: whiteColor,
+//           // minTileHeight: 55,
+//           dense: true,
+//           internalAddSemanticForOnTap: true,
+//           controller: ExpansionTileController(),
+//           clipBehavior: Clip.antiAlias,
+//           maintainState: true,
+//           shape: BeveledRectangleBorder(
+//             borderRadius: BorderRadius.only(
+//               topRight: Radius.circular(10),
+//               bottomRight: Radius.circular(10),
+//             ),
+//           ),
+//           tilePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+//           collapsedShape: BeveledRectangleBorder(
+//             borderRadius: BorderRadius.only(
+//               topRight: Radius.circular(10),
+//               bottomRight: Radius.circular(10),
+//             ),
+//           ),
+//
+//           // tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+//           title: CustomText(
+//             text: item.title,
+//             fontSize: 12,
+//             fontFamily: 'Roboto',
+//             color: whiteColor,
+//             fontWeight: FontWeight.w500,
+//             maxLines: 1,
+//           ),
+//           // subtitle: Text('${item.type} - ${item.url}'),
+//           children: [
+//             if (item.items.isNotEmpty)
+//               ...item.items.map(
+//                 (child) => _buildMenuItem(child, level: level + 1),
+//               )
+//             else
+//               Padding(
+//                 padding: const EdgeInsets.only(left: 8.0),
+//                 child: Container(
+//                   margin: EdgeInsets.only(left: 0.0),
+//                   decoration: BoxDecoration(
+//                     color: primaryBlackColor,
+//                     borderRadius: BorderRadius.only(
+//                       topRight: Radius.circular(12),
+//                       bottomRight: Radius.circular(12),
+//                     ),
+//                     // border: Border(
+//                     //   bottom: BorderSide(color: Colors.grey, width: 0.5),
+//                     // ),
+//                   ),
+//
+//                   child: Padding(
+//                     padding: const EdgeInsets.symmetric(
+//                       horizontal: 16.0,
+//                       vertical: 5,
+//                     ),
+//                     child: Row(
+//                       spacing: 12,
+//                       children: [
+//                         // Image.asset(
+//                         //   'assets/extra_images/teeth_1.png',
+//                         //   width: 24,
+//                         //   height: 24,
+//                         // ),
+//                         CustomText(
+//                           text: item.title,
+//                           fontSize: 12,
+//                           fontFamily: 'Roboto',
+//                           color: whiteColor,
+//                           fontWeight: FontWeight.w500,
+//                           maxLines: 2,
+//                         ),
+//                         // Spacer(),
+//                         // Icon(icon ?? Icons.add, color: whiteColor, size: 24),
+//                       ],
+//                     ),
+//                   ),
+//                 ),
+//                 // child: ListTile(
+//                 //   minVerticalPadding: 0,
+//                 //   contentPadding: EdgeInsets.zero,
+//                 //   title: const Text('Open'),
+//                 //   subtitle: Text(item.url),
+//                 //   trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+//                 //   onTap: () {
+//                 //     // Open link or navigate
+//                 //     // Example:
+//                 //     // launchUrl(Uri.parse("https://yourdomain.com${item.url}"));
+//                 //   },
+//                 // ),
+//               ),
+//           ],
+//         ),
+//       ),
+//     ),
+//   );
+// }
 
 /*************  ✨ Windsurf Command ⭐  *************/
 /// Creates a custom drawer submenu widget with a title, optional icon, and

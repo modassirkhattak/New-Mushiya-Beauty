@@ -1,225 +1,77 @@
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get.dart';
-import 'package:mushiya_beauty/controller/home_controller.dart';
-import 'package:mushiya_beauty/model/product_model.dart';
-import 'package:mushiya_beauty/new_app/screens/checkout_webview.dart';
-import 'package:mushiya_beauty/utills/app_colors.dart';
-import 'package:mushiya_beauty/view/checkout/checkout_page.dart';
-import 'package:mushiya_beauty/view/faq/faq_page.dart';
-import 'package:mushiya_beauty/view/profile/more_all_pages/partner_policy_page.dart';
-import 'package:mushiya_beauty/view/profile/more_all_pages/shipping_policy_page.dart';
-import 'package:mushiya_beauty/widget/custom_appbar.dart';
-import 'package:mushiya_beauty/widget/custom_button.dart';
-import 'package:mushiya_beauty/widget/custom_dropdown.dart' show CustomDropdown;
-import 'package:mushiya_beauty/widget/custom_tabbar.dart';
-import 'package:mushiya_beauty/widget/custom_text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mushiya_beauty/view/product_details/product_detail_screen.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shopify_flutter/models/src/product/product.dart';
+import 'package:shopify_flutter/models/src/product/product_variant/product_variant.dart';
+import 'package:shopify_flutter/shopify_flutter.dart';
 import 'package:svg_flutter/svg.dart';
 
-import '../../controller/policy_controller.dart';
+import '../../controller/home_controller.dart';
 import '../../controller/product_details_controller.dart';
-import '../../model/best_selling_product_model.dart';
-import 'dart:developer';
-
-import 'package:mushiya_beauty/new_app//constants.dart';
-import 'package:mushiya_beauty/new_app//extension.dart';
-
-import 'package:shopify_flutter/mixins/src/shopify_error.dart';
-import 'package:shopify_flutter/models/src/cart/inputs/attribute_input/attribute_input.dart';
-import 'package:shopify_flutter/shopify_flutter.dart';
-
-import '../../new_app/screens/cart_tab.dart';
 import '../../utills/api_controller.dart';
+import '../../utills/app_colors.dart';
+import '../checkout/checkout_page.dart';
+import '../faq/faq_page.dart';
+import '../profile/more_all_pages/partner_policy_page.dart';
+import '../profile/more_all_pages/shipping_policy_page.dart';
+import '../../widget/custom_appbar.dart';
+import '../../widget/custom_button.dart';
+import '../../widget/custom_dropdown.dart';
+import '../../widget/custom_tabbar.dart';
+import '../../widget/custom_text.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shopify_flutter/shopify_flutter.dart';
+import 'package:shopify_flutter/models/src/cart/inputs/attribute_input/attribute_input.dart';
+import 'package:shopify_flutter/mixins/src/shopify_error.dart';
+import 'dart:developer';
+import '../../new_app/screens/checkout_webview.dart'; // For context.showSnackBar
 
-class SearchProductDetailsPage extends StatefulWidget {
-  SearchProductDetailsPage({
-    super.key,
-    required this.title,
-    required this.homeModel,
-  });
 
+class ProductDetailScreenDrawer extends StatefulWidget {
+  final String productId;
   final String title;
-  final Product homeModel;
+
+  ProductDetailScreenDrawer({super.key, required this.productId, required this.title}) {
+    // final controller = Get.put(ProductDetailController());
+    // controller.setProduct(product);
+  }
 
   @override
-  State<SearchProductDetailsPage> createState() =>
-      _SearchProductDetailsPageState();
+  State<ProductDetailScreenDrawer> createState() => _ProductDetailScreenDrawerState();
 }
 
-class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
-  final homeController = Get.put(HomeController());
-  final controller = Get.put(ProductDetailsController());
-  final ShopifyStore shopifyStore = ShopifyStore.instance;
-  final ShopifyCart shopifyCart = ShopifyCart.instance;
-  // final HomeController controller = Get.put(HomeController());
-
-  Cart? cart;
+class _ProductDetailScreenDrawerState extends State<ProductDetailScreenDrawer> {
+  final cartController = Get.put(CartController());
+  late Product product;
 
   @override
   void initState() {
     super.initState();
-    init();
+    fetchProductDetails();
+    // product = widget.productId;
   }
 
-  void init() {
-    loadOrCreateCart();
-  }
-
-  Future<void> loadOrCreateCart() async {
-    try {
-      // Check for existing cart ID in shared preferences
-      final prefs = await SharedPreferences.getInstance();
-      final cartId = prefs.getString('cart_id');
-
-      if (cartId != null) {
-        // Try to fetch existing cart
-        try {
-          final cartResponse = await shopifyCart.getCartById(cartId);
-          setState(() {
-            cart = cartResponse;
-          });
-          logCartInfo(cart!);
-        } on ShopifyException catch (error) {
-          log('getCartById ShopifyException: $error');
-          // If cart is invalid or expired, create a new one
-          await createCart();
-        }
-      } else {
-        // No cart ID found, create a new cart
-        await createCart();
+  Future<void> fetchProductDetails() async {
+    print("product id ${widget.productId}");
+    final shopifyStore = ShopifyStore.instance;
+    final productDetails = await shopifyStore.getProductsByIds(["gid://shopify/Product/5490119671969"]);
+    product = productDetails!.first;
+    for (final Product productDetails in (productDetails ?? [])) {
+      final variants = productDetails.productVariants;
+      for (var variant in variants) {
+        log('Variant SellingPlanAllocation: ${variant.sellingPlanAllocations}');
       }
-    } catch (error) {
-      log('loadOrCreateCart Error: $error');
-      if (!mounted) return;
-      context.showSnackBar('Error loading cart');
     }
   }
-
-  Future<void> createCart() async {
-    String? accessToken = await ShopifyAuth.instance.currentCustomerAccessToken;
-    final CartInput cartInput = CartInput(
-      buyerIdentity: CartBuyerIdentityInput(
-        email: kUserEmail,
-        customerAccessToken: accessToken,
-      ),
-      attributes: [AttributeInput(key: 'color', value: 'Blue')],
-    );
-    try {
-      final newCart = await shopifyCart.createCart(cartInput);
-      // Save cart ID to shared preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('cart_id', newCart.id);
-      setState(() {
-        cart = newCart;
-      });
-      logCartInfo(newCart);
-    } on ShopifyException catch (error) {
-      log('createCart ShopifyException: $error');
-      if (!mounted) return;
-      context.showSnackBar(
-        error.errors?[0]["message"] ?? 'Error creating cart',
-      );
-    } catch (error) {
-      log('createCart Error: $error');
-      if (!mounted) return;
-      context.showSnackBar('Error creating cart');
-    }
-  }
-
-  Future<void> getCartById(String cartId) async {
-    try {
-      final cartResponse = await shopifyCart.getCartById(cartId);
-      setState(() {
-        cart = cartResponse;
-      });
-      logCartInfo(cart!);
-    } on ShopifyException catch (error) {
-      log('getCartById ShopifyException: $error');
-      if (!mounted) return;
-      context.showSnackBar(
-        error.errors?[0]["message"] ?? 'Error retrieving cart',
-      );
-    } catch (error) {
-      log('getCartById Error: $error');
-    }
-  }
-
-  void onCheckoutTap() async {
-    final checkoutUrl = cart?.checkoutUrl;
-    log('Checkout URL: $checkoutUrl');
-    if (checkoutUrl == null) {
-      context.showSnackBar('Invalid checkout URL');
-      return;
-    }
-    final status = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => WebViewCheckout(checkoutUrl: checkoutUrl),
-      ),
-    );
-    if (status != null && status) {
-      if (!mounted) return;
-      context.showSnackBar('Checkout Success');
-      await getCartById(cart!.id);
-    }
-  }
-
-  void addLineItemToCart(ProductModel product) async {
-    try {
-      if (cart == null) {
-        context.showSnackBar('Cart not initialized');
-        return;
-      }
-
-      if (product.variants.isEmpty) {
-        context.showSnackBar('No variants available for ${product.title}');
-        return;
-      }
-
-      String merchandiseId = product.variants.first.id.toString();
-      if (!merchandiseId.startsWith('gid://shopify/ProductVariant/')) {
-        merchandiseId = 'gid://shopify/ProductVariant/$merchandiseId';
-      }
-      log('Adding to cart with merchandiseId: $merchandiseId');
-
-      final cartLineInput = CartLineUpdateInput(
-        quantity: Get.put(HomeController()).quantity.value,
-
-        merchandiseId: merchandiseId,
-        // attributes: [AttributeInput(key: 'color', value: 'red')],
-      );
-
-      final updatedCart = await shopifyCart.addLineItemsToCart(
-        cartId: cart!.id,
-        cartLineInputs: [cartLineInput],
-      );
-
-      setState(() {
-        cart = updatedCart;
-      });
-      logCartInfo(updatedCart);
-      if (!mounted) return;
-      context.showSnackBar('Added ${product.title} to cart');
-    } on ShopifyException catch (error) {
-      log('addLineItemToCart ShopifyException: ${error.errors}');
-      if (!mounted) return;
-      context.showSnackBar(error.errors.toString());
-    } catch (error) {
-      log('addLineItemToCart Error: $error');
-      if (!mounted) return;
-      context.showSnackBar('Unexpected error adding item to cart');
-    }
-  }
-
-  void onCartItemUpdate() async {
-    if (cart == null) return;
-    await getCartById(cart!.id);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(ProductDetailController());
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -245,47 +97,17 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
             title: widget.title.toUpperCase(),
             titleImage: true,
             actions: true,
-            actionsWidget: SvgPicture.asset('assets/icons_svg/share_icon.svg'),
+            actionsWidget: GestureDetector(onTap: (){
+              controller.shareProductUrl(product);
+            },child: SvgPicture.asset('assets/icons_svg/share_icon.svg')),
             leadingButton: true,
           ),
         ),
         body: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(color: whiteColor),
-            );
-          }
-          if (controller.errorMessage.isNotEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomText(
-                    text: controller.errorMessage.value,
-                    color: redColor,
-                    fontSize: 16,
-                  ),
-                  const SizedBox(height: 16),
-                  MaterialButton(
-                    onPressed:
-                        () => controller.fetchProduct(
-                          int.parse(widget.homeModel.id),
-                        ),
-                    color: redColor,
-                    child: const Text(
-                      'Retry',
-                      style: TextStyle(color: whiteColor),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-          final product = controller.product.value;
-          if (product == null) {
-            return const Center(
-              child: CustomText(text: 'Product not found', color: whiteColor),
-            );
+          final selected = controller.selectedVariant.value;
+          // final selected = controller.selectedVariant.value;
+          if (selected == null) {
+            return Center(child: Text("No variants available"));
           }
 
           return SingleChildScrollView(
@@ -293,78 +115,55 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
+                // Product Image
+                product.images.isNotEmpty
+                    ? ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: CarouselSlider(
-                    options: CarouselOptions(
+                  child: Image.network(
+                    selected.image?.originalSrc ??
+                        product.images.first.originalSrc,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height / 3,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Image.asset(
+                      'assets/extra_images/girl_1.png',
                       height: 320,
-                      aspectRatio: 1.0,
-                      autoPlay: true,
-                      enableInfiniteScroll: false,
-                      viewportFraction: 1.0,
-                      autoPlayInterval: const Duration(seconds: 3),
-                      initialPage: 0,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
                     ),
-                    items:
-                        List.generate(
-                          product.images.length,
-                          (index) => index,
-                        ).map((i) {
-                          return Builder(
-                            builder: (BuildContext context) {
-                              return Image.network(
-                                product.images.isEmpty
-                                    ? 'https://cdn.shopify.com/s/files/1/1190/6424/files/Afro_Fusion.png?v=1733257065'
-                                    : product.images[i].src,
-                                height: 320,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder:
-                                    (context, error, stackTrace) => Image.asset(
-                                      'assets/extra_images/girl_1.png',
-                                      height: 320,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                loadingBuilder:
-                                    (context, child, loadingProgress) =>
-                                        loadingProgress == null
-                                            ? child
-                                            : Center(
-                                              child: CircularProgressIndicator(
-                                                color: whiteColor,
-                                              ),
-                                            ),
-                              );
-                            },
-                          );
-                        }).toList(),
-                  ),
-                ),
-                Row(
-                  children: [
-                    Obx(
-                      () => CustomText(
-                        text:
-                            '\$${homeController.selectedVariant.value == null ? product.variants.first.price : homeController.selectedVariant.value!.price}',
-                        fontSize: 18,
-                        fontFamily: 'Archivo',
-                        color: whiteColor,
-                        fontWeight: FontWeight.w600,
+                    loadingBuilder:
+                        (context, child, loadingProgress) =>
+                    loadingProgress == null
+                        ? child
+                        : Center(
+                      child: Container(
+                        height: MediaQuery.of(context).size.height / 3,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: whiteColor,
+                          ),
+                        ),
                       ),
                     ),
+                  ),
+                )
+                    : SizedBox.shrink(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    CustomText(
+                      text: selected.price.formattedPriceWithLocale('en_US'),
+                      fontSize: 18,
+                      fontFamily: 'Archivo',
+                      color: whiteColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                     const SizedBox(width: 10),
-                    Obx(
-                      () => CustomText(
-                        text:
-                            '${homeController.selectedVariant.value == null
-                                ? product.variants.first.compareAtPrice == product.variants.first.price
-                                    ? ''
-                                    : '${product.variants.first.compareAtPrice == '' ? '' : '\$${product.variants.first.compareAtPrice}'}'
-                                : homeController.selectedVariant.value!.compareAtPrice == homeController.selectedVariant.value!.price
-                                ? ''
-                                : '${homeController.selectedVariant.value!.compareAtPrice == '' ? '' : '\$${homeController.selectedVariant.value!.compareAtPrice}'}'}',
-                        // '\$${homeController.selectedVariant.value == null ? product.variants.first.compareAtPrice : homeController.selectedVariant.value!.compareAtPrice}',
+                    if (selected.compareAtPrice != null &&
+                        selected.compareAtPrice!.amount != selected.price.amount)
+                      CustomText(
+                        text: selected.compareAtPrice!.formattedPriceWithLocale('en_US'),
                         fontSize: 14,
                         fontFamily: 'Archivo',
                         color: redColor,
@@ -372,39 +171,21 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                         decorationStyle: TextDecorationStyle.solid,
                         fontWeight: FontWeight.w500,
                       ),
-                    ),
                     const Spacer(),
                     Row(
                       children: List.generate(5, (index) {
-                        double rating =
-                            product.variants.first.weight!; // for example: 3.5
-
+                        double rating =  double.parse(selected.weight > 5 ? '5.0' : '${selected.weight}'); // Replace with actual rating if available
                         if (index < rating.floor()) {
-                          // Full star
-                          return Icon(
-                            Icons.star,
-                            color: Colors.yellow,
-                            size: 16,
-                          );
+                          return const Icon(Icons.star, color: Colors.yellow, size: 16);
                         } else if (index < rating && rating % 1 != 0) {
-                          // Half star
-                          return Icon(
-                            Icons.star_half,
-                            color: Colors.yellow,
-                            size: 16,
-                          );
+                          return const Icon(Icons.star_half, color: Colors.yellow, size: 16);
                         } else {
-                          // Empty star
-                          return Icon(
-                            Icons.star_border,
-                            color: Colors.grey,
-                            size: 16,
-                          );
+                          return const Icon(Icons.star_border, color: Colors.grey, size: 16);
                         }
                       }),
                     ),
                     CustomText(
-                      text: product.variants.first.weight.toString(),
+                      text:  selected.weight > 5 ? '5.0' : '${selected.weight}',
                       fontSize: 14,
                       fontFamily: 'Archivo',
                       color: whiteColor,
@@ -413,9 +194,16 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Quantity selector
+                // CustomText(
+                //   text: '${product.onlineStoreUrl}',
+                //   fontSize: 16,
+                //   fontFamily: 'Roboto',
+                //   color: whiteColor,
+                //   fontWeight: FontWeight.w600,
+                // ),
+                // Dropdown for Variant Selection
                 Obx(
-                  () => Container(
+                      () => Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(6),
@@ -427,7 +215,7 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                         GestureDetector(
                           onTap:
                               () =>
-                                  Get.put(HomeController()).decrementQuantity(),
+                              Get.put(HomeController()).decrementQuantity(),
                           child: Icon(
                             Icons.remove,
                             color: whiteColor,
@@ -446,7 +234,7 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                         GestureDetector(
                           onTap:
                               () =>
-                                  Get.put(HomeController()).incrementQuantity(),
+                              Get.put(HomeController()).incrementQuantity(),
                           child: Icon(Icons.add, color: whiteColor, size: 16),
                         ),
                       ],
@@ -454,48 +242,216 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Variant dropdown
-                CustomDropdown(
-                  hintText: 'Select ${product.options[0].name}',
-                  items: product.variants.map((e) => e.title).toList(),
-                  selectedValue: controller.selecctSize,
-                  onChanged: (p0) {
-                    controller.selecctSize.value = p0.toString();
-                    final selectedVariant = product.variants.firstWhere(
-                      (variant) => variant.title == p0.toString(),
-                      orElse: () => product.variants.first,
-                    );
-                    homeController.selectedVariant.value =
-                        selectedVariant; // Assign single VariantModel
-                    log('Selected Variant Details:');
-                    log('Title: ${selectedVariant.title}');
-                    log('ID: ${selectedVariant.id}');
-                    log('Price: ${selectedVariant.price}');
-                    log('Weight: ${selectedVariant.weight}');
-                    log('Available: ${selectedVariant.inventoryQuantity}');
-                    log('SKU: ${selectedVariant.sku}');
-                    log('Barcode: ${selectedVariant.barcode}');
-                  },
+                // Container(
+                //   decoration: BoxDecoration(
+                //     borderRadius: BorderRadius.circular(12),
+                //     border: Border.all(color: whiteColor, width: 0.8),
+                //   ),
+                //   child: DropdownButtonFormField<ProductVariant>(
+                //     borderRadius:  BorderRadius.circular(12),
+                //     value: selected,
+                //     items: controller.variants
+                //         .map((v) => DropdownMenuItem<ProductVariant>(
+                //       value: v,
+                //       child: Text(v.title),
+                //     ))
+                //         .toList(),
+                //     onChanged: (value) {
+                //
+                //       if (value != null) controller.selectVariant(value);
+                //     },
+                //     validator:
+                //             (value) {
+                //           if (value == null) {
+                //             return 'Please select a value';
+                //           }
+                //           return null;
+                //         },
+                //
+                //     isExpanded: true,
+                //     icon:  Icon(Icons.keyboard_arrow_down, color: Colors.white,size: 24,),
+                //     style: GoogleFonts.roboto(color: Colors.white, fontSize: 14),
+                //     decoration: InputDecoration(
+                //       hintText: 'Select Variant',
+                //       hintStyle: GoogleFonts.roboto(color: Colors.white, fontSize: 16),
+                //       contentPadding:  EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                //       border: InputBorder.none,
+                //       constraints: BoxConstraints(maxHeight: 48,minHeight: 48),
+                //       enabledBorder: InputBorder.none,
+                //       focusedBorder: InputBorder.none,
+                //       errorBorder:InputBorder.none,
+                //
+                //     ),
+                //
+                //   ),
+                //
+                // ),
+
+                /// --- Variant Dropdown ---
+                Container(
+                  decoration:  BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: whiteColor, width: 0.4),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: DropdownButton<ProductVariant>(
+                      isExpanded: true,
+                      style: GoogleFonts.roboto(color: Colors.white, fontSize: 14),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      underline: Text(''),
+                      autofocus: false,
+
+                      menuMaxHeight: MediaQuery.of(context).size.width*0.80,
+                      // menuWidth: 400,
+                      alignment: Alignment.bottomCenter,
+                      // itemHeight: 5,
+
+                      icon: Icon(Icons.keyboard_arrow_down, color: Colors.white,size: 24,),
+                      value: controller.selectedVariant.value,
+                      items: controller.product.productVariants.map((variant) {
+                        return DropdownMenuItem(
+                          value: variant,
+                          child: Text(variant.title),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) controller.selectVariant(value);
+                      },
+                    ),
+                  ),
                 ),
+
+                const SizedBox(height: 12),
+
+                /// --- Options Dropdowns (inside Variant) ---
+                ...controller.selectedVariant.value!.selectedOptions!.map((option) {
+                  final optionName = option.name;
+
+                  /// Get all values for this option across all variants
+                  final allValues = controller.product.productVariants
+                      .map((v) => v.selectedOptions!
+                      .firstWhereOrNull((o) => o.name == optionName)
+                      ?.value)
+                      .whereType<String>()
+                      .toSet()
+                      .toList();
+
+                  /// If only value is 'Default Title', skip rendering this dropdown
+                  if (allValues.length == 1 && allValues.first == 'Default Title') {
+                    return const SizedBox.shrink(); // Return nothing
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        optionName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 8, bottom: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: whiteColor, width: 0.4),
+                        ),
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          style: GoogleFonts.roboto(color: Colors.white, fontSize: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          underline: const SizedBox(),
+                          autofocus: false,
+                          menuMaxHeight: MediaQuery.of(context).size.width * 0.80,
+                          alignment: Alignment.bottomCenter,
+                          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 24),
+
+                          value: controller.selectedOptions[optionName],
+                          items: allValues.map((value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value == "Default Title" ? "Empty Title" : value),
+                            );
+                          }).toList(),
+
+                          onChanged: (value) {
+                            if (value != null) {
+                              controller.updateSelectedOption(optionName, value);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+
+
+                // SizedBox(height: 20),
+
+                // /// Selected Variant Info
+                // if (controller.selectedVariant.value != null)
+                //   ListTile(
+                //     leading: controller.selectedVariant.value?.image != null
+                //         ? Image.network(
+                //       controller.selectedVariant.value!.image!.originalSrc,
+                //       width: 50,
+                //     )
+                //         : null,
+                //     title: Text(controller.selectedVariant.value!.title),
+                //     subtitle: Text(
+                //       controller.selectedVariant.value!.price.formattedPriceWithLocale('en_US'),
+                //     ),
+                //   ),
+
+
                 const SizedBox(height: 16),
-                // Add to cart and buy now buttons
-                // Text( controller.selectedVariant.value!.title),
+                // CustomDropdown(
+                //   hintText: 'Select ${product.options[0].name}',
+                //   items:
+                //       product.productVariants
+                //           .map(
+                //             (e) => e.selectedOptions!
+                //                 .map((e) => e.value)
+                //                 .join(', '),
+                //           )
+                //           .toList(),
+                //   selectedValue:
+                //       Get.put(
+                //         ProductDetailsController(),
+                //       ).selecctColor, // Use the existing instance
+                //   onChanged: (value) {
+                //     Get.put(ProductDetailsController()).selecctColor.value =
+                //         value.toString();
+                //
+                //     final selectedVariant = product.productVariants.firstWhere(
+                //       (variant) =>
+                //           variant.selectedOptions!
+                //               .map((e) => e.value)
+                //               .join(', ') ==
+                //           value.toString(),
+                //       orElse: () => product.productVariants.first,
+                //     );
+                //
+                //     controller.selectedVariant.value = selectedVariant;
+                //   },
+                // ),
+                // const SizedBox(height: 16),
                 Obx(() {
-                  final variant = homeController.selectedVariant.value;
+                  final variant = controller.selectedVariant.value;
                   final isVariantSelected = variant != null;
-                  final isOutOfStock =
-                      isVariantSelected
-                          ? variant.inventoryQuantity == 0
-                          : product.variants.first.inventoryQuantity == 0;
+                  final isOutOfStock = isVariantSelected
+                      ? !variant.availableForSale || variant.quantityAvailable == 0
+                      : !product.productVariants.first.availableForSale ||
+                      product.productVariants.first.quantityAvailable == 0;
 
                   if (!isVariantSelected) {
-                    // ✅ Variant not selected — show Add to Cart + Buy Now
                     return Row(
                       children: [
                         Expanded(
                           child: CustomButton(
                             text: "Add to Cart".toUpperCase(),
-                            onPressed: () => addLineItemToCart(product),
+                            onPressed: () {
+                              Get.snackbar('Error', 'Please select a variant');
+                            },
                             backgroundColor: whiteColor,
                             textColor: primaryBlackColor,
                             fontSize: 14,
@@ -508,9 +464,7 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                           child: CustomButton(
                             text: "Buy Now".toUpperCase(),
                             onPressed: () {
-                              addLineItemToCart(product);
-
-                              onCheckoutTap();
+                              Get.snackbar('Error', 'Please select a variant');
                             },
                             backgroundColor: whiteColor,
                             textColor: primaryBlackColor,
@@ -522,13 +476,10 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                       ],
                     );
                   } else if (isOutOfStock) {
-                    // ✅ Variant selected but out of stock — show Notify button
                     return CustomButton(
-                      text:
-                          "Sold Out - Notify Me When It’s Available"
-                              .toUpperCase(),
+                      text: "Sold Out - Notify Me When It’s Available".toUpperCase(),
                       onPressed: () {
-                        // Add notify logic here
+                        Get.snackbar('Notify', 'You will be notified when this item is back in stock');
                       },
                       minWidth: double.infinity,
                       backgroundColor: whiteColor,
@@ -538,21 +489,20 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                       height: 40,
                     );
                   } else {
-                    // ✅ Variant selected and in stock — show Add to Cart + Buy Now
                     return Row(
                       children: [
                         Expanded(
                           child: CustomButton(
                             text: "Add to Cart".toUpperCase(),
                             onPressed: () {
-                              if (homeController.selectedVariant.value ==
-                                  null) {
-                                Get.snackbar(
-                                  'Error',
-                                  'Please select a variant',
-                                );
+                              if (controller.selectedVariant.value == null) {
+                                Get.snackbar('Error', 'Please select a variant');
                               } else {
-                                addLineItemToCart(product);
+                                cartController.addLineItemToCart(
+                                  product,
+                                  Get.put(HomeController()).quantity.value,//.quantity.value,
+                                  // : controller.selectedVariant.value,
+                                );
                               }
                             },
                             backgroundColor: whiteColor,
@@ -566,10 +516,19 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                         Expanded(
                           child: CustomButton(
                             text: "Buy Now".toUpperCase(),
-                            onPressed: () {
-                              addLineItemToCart(product);
-
-                              onCheckoutTap();
+                            onPressed: () async {
+                              if (controller.selectedVariant.value == null) {
+                                Get.snackbar('Error', 'Please select a variant');
+                              } else {
+                                await cartController.addLineItemToCart(
+                                  product,
+                                  Get.put(HomeController()).quantity.value,
+                                  // variant: controller.selectedVariant.value,
+                                );
+                                if (cartController.errorMessage.isEmpty) {
+                                  await cartController.checkout();
+                                }
+                              }
                             },
                             backgroundColor: whiteColor,
                             textColor: primaryBlackColor,
@@ -600,22 +559,11 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                 ),
                 const SizedBox(height: 16),
                 CustomTabWidget(
-                    children: [
-                      Tab(text: 'Description'),
-                      Tab(text: 'Shipping policy'),
-                      Tab(text: 'Return policy'),
-
-                    ],
-                    onTap: (value) {
-                      print(value);
-                      if(value == 0){
-
-
-                      } else if(value == 1){
-                        Get.put(PolicyController()).fetchPageContent(SHIPPING_POLICY);
-                      } else if(value == 2){
-                        Get.put(PolicyController()).fetchPageContent(RETURN_POLICY);
-                      }}
+                  children: [
+                    Tab(text: 'Description'),
+                    Tab(text: 'Shipping policy'),
+                    Tab(text: 'Return policy'),
+                  ],
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.30,
@@ -624,26 +572,24 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
                       tabbarView(
                         homeModel: product,
                         title: "Description",
-                        description: product.bodyHtml,
+                        description: product.descriptionHtml.toString(),
                       ),
                       TheShoppingPolicyPage(
                         isPage: false,
                         handle: SHIPPING_POLICY,
-
-                        // homeModel: homeModel,
-                        // title: "Shipping policy",
-                        // description: "adsadas",
                       ),
-                      PartnerPolicyPage(
-                        isPage: false,
-                        handle:   RETURN_POLICY,
-                        // homeModel: homeModel,
-                        // title: "Return policy",
-                        // description: "jksdjksa",
-                      ),
+                      PartnerPolicyPage(isPage: false, handle: PARTNER_POLICY),
                     ],
                   ),
                 ),
+
+                // Price & Info
+                // ListTile(
+                //   title: Text(
+                //     "Price: ${selected.price.formattedPriceWithLocale('en_US')}",
+                //   ),
+                //   subtitle: Text("Title: ${selected.title}"),
+                // ),
               ],
             ),
           );
@@ -654,7 +600,7 @@ class _SearchProductDetailsPageState extends State<SearchProductDetailsPage> {
 }
 
 Widget tabbarView({
-  required ProductModel homeModel,
+  required Product homeModel,
   required String title,
   required String description,
 }) {
@@ -710,15 +656,7 @@ Widget tabbarView({
           },
         ),
         SizedBox(height: 80),
-        // CustomText(
-        //   text:
-        //       description,
-        //   fontSize: 12,
-        //   fontFamily: 'Roboto',
-        //   color: whiteColor,
-        //   maxLines: 90,
-        //   fontWeight: FontWeight.w400,
-        // ),
+
       ],
     ),
   );

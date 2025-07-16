@@ -393,14 +393,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
-  deepar_shoe_try_on_flutter:
-    dependency: "direct main"
-    description:
-      name: deepar_shoe_try_on_flutter
-      sha256: f5267b91a5191b796b8553ed575562331b13c2f39ae326a900c2b48735c621e7
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2-beta"
   diff_match_patch:
     dependency: transitive
     description:

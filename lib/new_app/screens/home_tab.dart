@@ -9,7 +9,7 @@ import '../../widget/custom_appbar.dart';
 import '../../widget/custom_filter.dart';
 import '../../widget/custom_text.dart';
 import '../../widget/custom_textfield.dart';
-import 'product_detail_screen.dart';
+import '../../view/product_details/product_detail_screen.dart';
 import 'package:get/get.dart';
 import 'package:shopify_flutter/shopify_flutter.dart';
 
@@ -41,6 +41,7 @@ class ShopifyProductController extends GetxController {
   ];
 
   Future<void> fetchAllProductsFromCollection(String collectionId) async {
+    print('collectionId.... $collectionId');
     try {
       isLoading.value = true;
       products.clear();
@@ -49,7 +50,7 @@ class ShopifyProductController extends GetxController {
       final shopifyStore = ShopifyStore.instance;
       final result = await shopifyStore.getAllProductsFromCollectionById(collectionId,sortKeyProductCollection: SortKeyProductCollection.COLLECTION_DEFAULT);
 
-      if (result != null) {
+      if (result.isNotEmpty) {
         products.assignAll(result);
         filteredProducts.assignAll(result);
         // filteredBestSellingProducts.assignAll(result);
@@ -185,6 +186,7 @@ class HomeTab extends StatelessWidget {
     // controller.fetchAllProductsFromCollection(collectionId);
 
     return Scaffold(
+      // backgroundColor: Colors.green,
       persistentFooterAlignment: AlignmentDirectional.centerEnd,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -239,6 +241,7 @@ class HomeTab extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(width: 12)
             ],
           ),
           Expanded(
@@ -250,7 +253,14 @@ class HomeTab extends StatelessWidget {
               if (controller.filteredProducts.isEmpty) {
                 return const Center(child: Text("No products found."));
               }
+            final List<Product>  result = controller.filteredProducts.where((product) =>
+              product.availableForSale == true &&
+                  product.isAvailableForSale == true
+              ).toList();
 
+              if(result.isEmpty){
+                return const Center(child: Text("No products found."));
+              }
               return GridView.builder(
                 padding: const EdgeInsets.all(8),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -260,9 +270,9 @@ class HomeTab extends StatelessWidget {
                   childAspectRatio: 0.7
 
                 ),
-                itemCount: controller.filteredProducts.length,
+                itemCount: result.length,
                 itemBuilder: (_, index) {
-                  final product = controller.filteredProducts[index];
+                  final product = result[index];
                   return buildProductThumbnail(product);
                 },
               );
@@ -281,6 +291,8 @@ class HomeTab extends StatelessWidget {
 
 }
 Widget buildProductThumbnail(Product product) {
+  // Always exclude sold-out products by default
+
   return GestureDetector(
     onTap: () {
       // final productID= product.id.split();
@@ -315,6 +327,7 @@ Widget buildProductThumbnail(Product product) {
       mainAxisAlignment: MainAxisAlignment.start,
       spacing: 8,
       children: [
+
         Stack(
           children: [
             ClipRRect(

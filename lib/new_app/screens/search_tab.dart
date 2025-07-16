@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mushiya_beauty/new_app/screens/product_detail_screen.dart';
+import 'package:mushiya_beauty/view/product_details/product_detail_screen.dart';
 import 'package:mushiya_beauty/utills/app_colors.dart';
 import 'package:mushiya_beauty/widget/custom_text.dart';
 import 'package:mushiya_beauty/widget/custom_textfield.dart';

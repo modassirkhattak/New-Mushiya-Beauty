@@ -28,7 +28,7 @@ import 'package:svg_flutter/svg_flutter.dart';
 import '../../controller/home_specific_collect_controller.dart';
 import '../../controller/product_details_controller.dart';
 
-import '../../new_app/screens/product_detail_screen.dart';
+import '../product_details/product_detail_screen.dart';
 import '../product_details/best_seller_details.dart';
 import '../product_details/custom_collect_details.dart';
 

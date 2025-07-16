@@ -218,7 +218,7 @@ class HomeController extends GetxController {
                   'sale',
                   'clearance',
                   'trending',
-                  'motherfanner',
+                  // 'motherfanner',
                 ].contains(collection.handle),
               )
               .toList();

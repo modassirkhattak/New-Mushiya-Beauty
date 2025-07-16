@@ -13,10 +13,10 @@ import '../../controller/home_controller.dart';
 import '../../controller/product_details_controller.dart';
 import '../../utills/api_controller.dart';
 import '../../utills/app_colors.dart';
-import '../../view/checkout/checkout_page.dart';
-import '../../view/faq/faq_page.dart';
-import '../../view/profile/more_all_pages/partner_policy_page.dart';
-import '../../view/profile/more_all_pages/shipping_policy_page.dart';
+import '../checkout/checkout_page.dart';
+import '../faq/faq_page.dart';
+import '../profile/more_all_pages/partner_policy_page.dart';
+import '../profile/more_all_pages/shipping_policy_page.dart';
 import '../../widget/custom_appbar.dart';
 import '../../widget/custom_button.dart';
 import '../../widget/custom_dropdown.dart';
@@ -28,7 +28,7 @@ import 'package:shopify_flutter/shopify_flutter.dart';
 import 'package:shopify_flutter/models/src/cart/inputs/attribute_input/attribute_input.dart';
 import 'package:shopify_flutter/mixins/src/shopify_error.dart';
 import 'dart:developer';
-import 'checkout_webview.dart'; // For context.showSnackBar
+import '../../new_app/screens/checkout_webview.dart'; // For context.showSnackBar
 
 class CartController extends GetxController {
   final ShopifyCart shopifyCart = ShopifyCart.instance;
@@ -345,7 +345,7 @@ class ProductDetailScreen extends StatelessWidget {
                     const Spacer(),
                     Row(
                       children: List.generate(5, (index) {
-                        const double rating = 4.5; // Replace with actual rating if available
+                        double rating =  double.parse(selected.weight > 5 ? '5.0' : '${selected.weight}'); // Replace with actual rating if available
                         if (index < rating.floor()) {
                           return const Icon(Icons.star, color: Colors.yellow, size: 16);
                         } else if (index < rating && rating % 1 != 0) {
@@ -355,8 +355,8 @@ class ProductDetailScreen extends StatelessWidget {
                         }
                       }),
                     ),
-                    const CustomText(
-                      text: '4.5',
+                     CustomText(
+                      text:  selected.weight > 5 ? '5.0' : '${selected.weight}',
                       fontSize: 14,
                       fontFamily: 'Archivo',
                       color: whiteColor,
@@ -462,13 +462,13 @@ class ProductDetailScreen extends StatelessWidget {
                 Container(
                   decoration:  BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: whiteColor, width: 0.8),
+                    border: Border.all(color: whiteColor, width: 0.4),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: DropdownButton<ProductVariant>(
                       isExpanded: true,
-                      style: GoogleFonts.roboto(color: Colors.white, fontSize: 16),
+                      style: GoogleFonts.roboto(color: Colors.white, fontSize: 14),
                          padding: EdgeInsets.symmetric(horizontal: 12),
                          underline: Text(''),
                          autofocus: false,
@@ -493,13 +493,13 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 /// --- Options Dropdowns (inside Variant) ---
                 ...controller.selectedVariant.value!.selectedOptions!.map((option) {
                   final optionName = option.name;
 
-                  /// Find all values across all variants for this option
+                  /// Get all values for this option across all variants
                   final allValues = controller.product.productVariants
                       .map((v) => v.selectedOptions!
                       .firstWhereOrNull((o) => o.name == optionName)
@@ -508,41 +508,42 @@ class ProductDetailScreen extends StatelessWidget {
                       .toSet()
                       .toList();
 
-                  return Column(
+                  /// If only value is 'Default Title', skip rendering this dropdown
+                  if (allValues.length == 1 && allValues.first == 'Default Title') {
+                    return const SizedBox.shrink(); // Return nothing
+                  }
 
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         optionName,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Container(
-                        margin:  EdgeInsets.only(top: 8,bottom: 8),
-                        decoration:  BoxDecoration(
+                        margin: const EdgeInsets.only(top: 8, bottom: 8),
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: whiteColor, width: 0.8),
+                          border: Border.all(color: whiteColor, width: 0.4),
                         ),
                         child: DropdownButton<String>(
                           isExpanded: true,
-                          style: GoogleFonts.roboto(color: Colors.white, fontSize: 16),
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          underline: Text(''),
+                          style: GoogleFonts.roboto(color: Colors.white, fontSize: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          underline: const SizedBox(),
                           autofocus: false,
-
-                          menuMaxHeight: MediaQuery.of(context).size.width*0.80,
-                          // menuWidth: 400,
+                          menuMaxHeight: MediaQuery.of(context).size.width * 0.80,
                           alignment: Alignment.bottomCenter,
-                          // itemHeight: 5,
-
-                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.white,size: 24,),
+                          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 24),
 
                           value: controller.selectedOptions[optionName],
                           items: allValues.map((value) {
                             return DropdownMenuItem<String>(
                               value: value,
-                              child: Text(value),
+                              child: Text(value == "Default Title" ? "Empty Title" : value),
                             );
                           }).toList(),
+
                           onChanged: (value) {
                             if (value != null) {
                               controller.updateSelectedOption(optionName, value);
@@ -553,6 +554,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ],
                   );
                 }).toList(),
+
 
                 // SizedBox(height: 20),
 

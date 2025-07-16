@@ -24,7 +24,7 @@ import '../../controller/home_specific_collect_controller.dart';
 import '../../controller/product_details_controller.dart';
 import '../../model/home_banner_item_model.dart';
 import '../../new_app/screens/home_tab.dart';
-import '../../new_app/screens/product_detail_screen.dart';
+import '../product_details/product_detail_screen.dart';
 import '../../new_app/screens/search_tab.dart';
 import '../product_details/best_seller_details.dart';
 
@@ -332,21 +332,27 @@ class HomePage2 extends StatelessWidget {
                                         : true,
                                 height: 101,
                                 OnTapped: () {
-                                  Get.put(
-                                    HomeSpecificCollectController(),
-                                  ).fetchCollectionProducts(
-                                    "gid://shopify/Collection/"+controller.collections[index].id.toString(),
-                                    isLoadMore: false,
+                                  // Get.put(
+                                  //   HomeSpecificCollectController(),
+                                  // ).fetchCollectionProducts(
+                                  //   "gid://shopify/Collection/"+controller.collections[index].id.toString(),
+                                  //   isLoadMore: false,
+                                  //
+                                  // );
 
-                                  );Get.put(
+                                  // Get.put(
+                                  //   ShopifyProductController(),
+                                  // ).clearAllFilters();
+                                  print("gid://shopify/Collection/"+controller.collectionsFilter[index].id.toString());
+                                  Get.put(
                                     ShopifyProductController(),
                                   ).fetchAllProductsFromCollection(
-                                    'gid://shopify/Collection/'+controller.collections[index].id.toString(),
+                                    'gid://shopify/Collection/'+controller.collectionsFilter[index].id.toString(),
                                     // isLoadMore: false,
                                   );
                                   Get.to(
                                     HomeTab(
-                                      whichPage:  controller.collections[index].title,
+                                      whichPage:  controller.collectionsFilter[index].title,
                                     ),
                                   );
                                   //

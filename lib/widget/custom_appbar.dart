@@ -28,7 +28,7 @@ class MyAppBarWidget extends StatelessWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       foregroundColor: whiteColor,
-      actionsPadding: EdgeInsets.only(right: 16),
+      actionsPadding: EdgeInsets.only(right: 16,left: 16),
       elevation: 0,
       leading:
           leadingButton == true
@@ -89,6 +89,7 @@ class MyAppBarWidget extends StatelessWidget {
                     ),
                   ),
                 ),
+
               ],
     );
   }
